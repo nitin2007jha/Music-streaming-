@@ -88,4 +88,26 @@ self.addEventListener('message', event => {
   }
 });
 
+// ── Notification click handler ──
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  if (event.action === 'dismiss') return;
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      // Focus existing window
+      for (const client of clientList) {
+        if (client.url.includes('index') && 'focus' in client) {
+          client.focus();
+          if (event.notification.data?.songId) {
+            client.postMessage({ type: 'PLAY_SONG', songId: event.notification.data.songId });
+          }
+          return;
+        }
+      }
+      // Open new window
+      if (clients.openWindow) return clients.openWindow('./index.html');
+    })
+  );
+});
+
 console.log('[SW] Musico Service Worker loaded ✅');
