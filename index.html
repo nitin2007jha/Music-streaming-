@@ -236,13 +236,14 @@
         }
         #mini-player-controls .material-icons:active { transform: scale(0.88); }
         #mini-player-play-btn {
-            font-size: 0 !important; padding: 0 !important;
             width: 38px; height: 38px; border-radius: 50%;
             background: white; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; cursor: pointer; border: none;
         }
-        #mini-player-play-btn .material-icons,
-        #mini-player-play-btn.material-icons {
+        #mini-player-play-btn .material-icons {
             font-size: 22px !important; color: #000 !important;
+            font-family: 'Material Icons' !important;
+            line-height: 1 !important; padding: 0 !important;
         }
         #mini-player-controls .like-btn.liked { color: var(--accent-primary); }
 
@@ -375,16 +376,17 @@
         #full-player-controls .material-icons:hover { color: white; transform: scale(1.1); }
         #full-player-controls .material-icons.active { color: var(--accent-primary); }
         #full-player-controls .play-pause-btn {
-            font-size: 0; color: white; cursor: pointer;
-            width: 64px; height: 64px; border-radius: 50%;
+            cursor: pointer; width: 64px; height: 64px; border-radius: 50%;
             background: white;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 24px rgba(255,255,255,0.2);
             transition: transform 0.15s, box-shadow 0.15s;
-            padding: 0;
+            padding: 0; border: none;
         }
         #full-player-controls .play-pause-btn .material-icons {
-            font-size: 36px; color: #000; padding: 0;
+            font-size: 36px !important; color: #000 !important;
+            font-family: 'Material Icons' !important;
+            line-height: 1 !important; padding: 0 !important;
         }
         #full-player-controls .play-pause-btn:active { transform: scale(0.93); }
 
@@ -1258,7 +1260,53 @@
                 await loadDownloadedSongsFromDB();
             }
 
-            // ── CORS PROXY HELPER ──
+            // ── PUSH NOTIFICATIONS (Web Push via Service Worker) ──
+            async function requestNotificationPermission() {
+                if (!('Notification' in window)) return false;
+                if (Notification.permission === 'granted') return true;
+                const result = await Notification.requestPermission();
+                return result === 'granted';
+            }
+
+            async function showLocalNotification(title, body, icon, songId) {
+                const granted = await requestNotificationPermission();
+                if (!granted) return;
+                if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.ready;
+                    reg.showNotification(title, {
+                        body,
+                        icon: icon || 'web-app-manifest-192x192.png',
+                        badge: 'favicon-96x96.png',
+                        tag: 'musico-notification',
+                        vibrate: [200, 100, 200],
+                        data: { songId },
+                        actions: [
+                            { action: 'play', title: '▶ Play' },
+                            { action: 'dismiss', title: '✕ Dismiss' }
+                        ]
+                    });
+                }
+            }
+
+            // Show notification when new songs arrive
+            function notifyNewSongs(count) {
+                showLocalNotification(
+                    '🎵 New Songs Added!',
+                    count + ' new song' + (count > 1 ? 's' : '') + ' available in Musico',
+                    'web-app-manifest-192x192.png',
+                    null
+                );
+            }
+
+            // Ask permission on first load (after user interaction)
+            document.addEventListener('click', async function askOnce() {
+                if (Notification.permission === 'default') {
+                    await requestNotificationPermission();
+                }
+                document.removeEventListener('click', askOnce);
+            }, { once: true });
+
+            // ── END NOTIFICATIONS ──
             function applyProxyToUrl(url) {
                 if (!url) return url;
                 const enabled = localStorage.getItem('corsProxyEnabled') === 'true';
@@ -1641,12 +1689,12 @@
                         await audioPlayer.play();
                         isPlaying = true;
                         $('#full-player-play-btn').textContent = pauseIcon;
-                        $('#mini-player-play-btn').textContent = miniPauseIcon;
+                        const _mpe2 = document.querySelector('#mini-player-play-btn .material-icons'); if(_mpe2) _mpe2.textContent = 'pause';
                     } else {
                         audioPlayer.pause();
                         isPlaying = false;
                         $('#full-player-play-btn').textContent = playIcon;
-                        $('#mini-player-play-btn').textContent = miniPlayIcon;
+                        const _mpe3 = document.querySelector('#mini-player-play-btn .material-icons'); if(_mpe3) _mpe3.textContent = 'play_arrow';
                     }
                 } catch (error) {
                     console.error("Playback failed:", error);
@@ -1901,10 +1949,12 @@
                 const song = getSongById(songId);
                 if (!song) { showToast("Song not found."); return; }
 
-                // Pick URL based on quality setting
                 const quality = localStorage.getItem('downloadQuality') || '128';
-                const downloadUrl = (quality === '320' && song.url320) ? song.url320 : (song.url128 || song.url);
-                if (!downloadUrl) { showToast("Song URL not found."); return; }
+                const rawUrl = (quality === '320' && song.url320) ? song.url320 : (song.url128 || song.url);
+                if (!rawUrl) { showToast("Song URL not found."); return; }
+
+                // Apply proxy for download too (fixes CORS on archive.org)
+                const downloadUrl = applyProxyToUrl(rawUrl);
 
                 if (!window._activeDownloads) window._activeDownloads = new Set();
                 window._activeDownloads.add(songId);
@@ -1920,6 +1970,13 @@
                 closeAllModals();
 
                 const saveBlob = (audioBlob) => {
+                    // Validate blob size — opaque/failed response check
+                    if (!audioBlob || audioBlob.size < 10000) {
+                        window._activeDownloads.delete(songId);
+                        dpb.style.display = 'none';
+                        showToast('Download failed — file too small. Check proxy settings.');
+                        return;
+                    }
                     const transaction = dbInstance.transaction(['songs'], 'readwrite');
                     transaction.objectStore('songs').put({ id: song.id, ...song, audioBlob });
                     transaction.oncomplete = () => {
@@ -1942,8 +1999,6 @@
                 try {
                     const response = await fetch(downloadUrl, { mode: 'cors' });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-                    // Try streaming progress if supported
                     const contentLength = response.headers.get('Content-Length');
                     if (response.body && typeof response.body.getReader === 'function' && contentLength) {
                         const total = parseInt(contentLength, 10);
@@ -1961,26 +2016,16 @@
                         }
                         saveBlob(new Blob(chunks, { type: 'audio/mpeg' }));
                     } else {
-                        // Fallback: simple blob (no progress bar %)
                         dpbFill.style.width = '60%';
                         dpbPercent.textContent = '...';
                         const audioBlob = await response.blob();
                         saveBlob(audioBlob);
                     }
                 } catch (error) {
-                    // Last fallback: no-cors (saves opaque response — may not play but at least won't crash)
-                    try {
-                        dpbFill.style.width = '40%';
-                        dpbPercent.textContent = '...';
-                        const response2 = await fetch(downloadUrl);
-                        const audioBlob = await response2.blob();
-                        saveBlob(audioBlob);
-                    } catch (err2) {
-                        window._activeDownloads.delete(songId);
-                        dpb.style.display = 'none';
-                        showToast(`Download failed: ${error.message}`);
-                        console.error('Download error:', error, err2);
-                    }
+                    window._activeDownloads.delete(songId);
+                    dpb.style.display = 'none';
+                    showToast(`Download failed: ${error.message}. Proxy enable karo Settings me.`);
+                    console.error('Download error:', error);
                 }
             }
 
