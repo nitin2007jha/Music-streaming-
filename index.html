@@ -932,9 +932,10 @@
             </div>
             <div id="mini-player-controls">
                 <span id="mini-prev-btn" class="material-icons">skip_previous</span>
-                <div id="mini-player-play-btn">
-                    <span class="material-icons">play_arrow</span>
-                </div>
+                <button id="mini-player-play-btn" aria-label="Play">
+                    <svg id="mp-play-icon" viewBox="0 0 24 24" fill="#000" width="20" height="20"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="mp-pause-icon" viewBox="0 0 24 24" fill="#000" width="20" height="20" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
                 <span id="mini-next-btn" class="material-icons">skip_next</span>
             </div>
             <div id="mini-player-progress"><div id="mini-player-progress-fill"></div></div>
@@ -1000,9 +1001,10 @@
                 <div id="full-player-controls">
                     <span id="shuffle-btn" class="material-icons">shuffle</span>
                     <span id="prev-btn" class="material-icons">skip_previous</span>
-                    <div id="full-player-play-btn" class="play-pause-btn">
-                        <span class="material-icons">play_arrow</span>
-                    </div>
+                    <button id="full-player-play-btn" class="play-pause-btn" aria-label="Play">
+                        <svg id="fp-play-icon" viewBox="0 0 24 24" fill="#000" width="36" height="36"><path d="M8 5v14l11-7z"/></svg>
+                        <svg id="fp-pause-icon" viewBox="0 0 24 24" fill="#000" width="36" height="36" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
                     <span id="next-btn" class="material-icons">skip_next</span>
                     <span id="repeat-btn" class="material-icons">repeat</span>
                 </div>
@@ -1675,6 +1677,19 @@
                 updateMediaSession(song);
             }
 
+            function updatePlayIcons(playing) {
+                // Full player SVG icons
+                const fpPlay = document.getElementById('fp-play-icon');
+                const fpPause = document.getElementById('fp-pause-icon');
+                if (fpPlay) fpPlay.style.display = playing ? 'none' : 'block';
+                if (fpPause) fpPause.style.display = playing ? 'block' : 'none';
+                // Mini player SVG icons
+                const mpPlay = document.getElementById('mp-play-icon');
+                const mpPause = document.getElementById('mp-pause-icon');
+                if (mpPlay) mpPlay.style.display = playing ? 'none' : 'block';
+                if (mpPause) mpPause.style.display = playing ? 'block' : 'none';
+            }
+
             async function togglePlayPause(forcePlay = null) {
                 const shouldPlay = forcePlay !== null ? forcePlay : !isPlaying;
                 if (!audioPlayer.src && shouldPlay) {
@@ -1688,19 +1703,12 @@
                     if (shouldPlay) {
                         await audioPlayer.play();
                         isPlaying = true;
-                        const _fpi = document.querySelector('#full-player-play-btn .material-icons');
-                        if (_fpi) _fpi.textContent = 'pause';
-                        const _mpi = document.querySelector('#mini-player-play-btn .material-icons');
-                        if (_mpi) _mpi.textContent = 'pause';
+                        updatePlayIcons(true);
                     } else {
                         audioPlayer.pause();
                         isPlaying = false;
-                        const _fpi = document.querySelector('#full-player-play-btn .material-icons');
-                        if (_fpi) _fpi.textContent = 'play_arrow';
-                        const _mpi = document.querySelector('#mini-player-play-btn .material-icons');
-                        if (_mpi) _mpi.textContent = 'play_arrow';
+                        updatePlayIcons(false);
                     }
-                    // Update artwork animation
                     const _art = document.getElementById('full-player-artwork');
                     if (_art) _art.classList.toggle('playing', shouldPlay);
                 } catch (error) {
@@ -1942,14 +1950,21 @@
             }
 
             function initIndexedDB() {
-                const request = indexedDB.open('MusicoDB_v1', 1);
-                request.onupgradeneeded = e => e.target.result.createObjectStore('songs', { keyPath: 'id' });
+                const request = indexedDB.open('MusicoDB_v2', 2);
+                request.onupgradeneeded = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('songs')) {
+                        db.createObjectStore('songs', { keyPath: 'id' });
+                    }
+                };
                 request.onsuccess = e => { dbInstance = e.target.result; loadDownloadedSongsFromDB(); };
                 request.onerror = e => console.error("IndexedDB error:", e.target.errorCode);
             }
 
             async function downloadSongForOffline(songId) {
                 if (!dbInstance) { showToast("Download manager is not ready."); return; }
+                // Always reload from IDB to get fresh state (fixes wrong song downloaded bug)
+                await loadDownloadedSongsFromDB();
                 if (downloadedSongs.has(songId)) { showToast("Already downloaded! ✓"); return; }
                 if (window._activeDownloads && window._activeDownloads.has(songId)) { showToast("Download already in progress..."); return; }
 
@@ -2066,18 +2081,59 @@
             
             async function loadDownloadedSongsFromDB() {
                 if (!dbInstance) return;
-                const request = dbInstance.transaction(['songs'], 'readonly').objectStore('songs').getAll();
-                request.onsuccess = () => {
-                    downloadedSongs.clear();
-                    request.result.forEach(song => downloadedSongs.set(song.id, song));
-                    renderLibraryPage();
-                    if (userData) renderProfilePage();
-                };
+                return new Promise((resolve) => {
+                    const tx = dbInstance.transaction(['songs'], 'readonly');
+                    const request = tx.objectStore('songs').getAll();
+                    request.onsuccess = () => {
+                        downloadedSongs.clear();
+                        (request.result || []).forEach(song => {
+                            if (song && song.id) downloadedSongs.set(song.id, song);
+                        });
+                        console.log('[IDB] Loaded', downloadedSongs.size, 'downloaded songs');
+                        renderLibraryPage();
+                        if (userData) renderProfilePage();
+                        resolve();
+                    };
+                    request.onerror = () => resolve();
+                });
             }
 
             function setupOfflineMode() {
-                window.addEventListener('online', () => offlineBtn.style.display = 'none');
-                window.addEventListener('offline', () => offlineBtn.style.display = 'block');
+                window.addEventListener('online', () => {
+                    offlineBtn.style.display = 'none';
+                    document.getElementById('offline-banner')?.remove();
+                });
+                window.addEventListener('offline', () => {
+                    offlineBtn.style.display = 'block';
+                    showOfflineBanner();
+                });
+                // On load, if already offline show downloaded songs
+                if (!navigator.onLine) {
+                    showOfflineBanner();
+                    offlineBtn.style.display = 'block';
+                }
+            }
+            function showOfflineBanner() {
+                if (document.getElementById('offline-banner')) return;
+                const banner = document.createElement('div');
+                banner.id = 'offline-banner';
+                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#333,#111);color:white;text-align:center;padding:10px 16px;font-size:13px;font-weight:600;';
+                banner.innerHTML = [
+                    '<span>📵 Offline Mode — Showing downloaded songs only</span>',
+                    '<button onclick="document.getElementById(\"offline-banner\").remove()" ',
+                    'style="margin-left:10px;background:none;border:1px solid rgba(255,255,255,0.4);',
+                    'color:white;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer;">✕</button>'
+                ].join('');
+                document.body.prepend(banner);
+                // Navigate to downloads tab
+                if (downloadedSongs.size > 0) {
+                    showListView('downloads', null);
+                    showToast(downloadedSongs.size + ' songs available offline');
+                } else {
+                    showToast('No downloaded songs. Download songs while online.');
+                }
+            }
+            function _setupOfflineListeners() {
                 if(!navigator.onLine) offlineBtn.style.display = 'block';
                 offlineBtn.addEventListener('click', () => { navigateTo('library-page'); showListView('downloads'); });
             }
@@ -2854,13 +2910,21 @@ audioPlayer.addEventListener('ended', () => {
             }
 
             // --- SHARE SONG ---
+            const APP_URL = 'https://music-streaming-rho.vercel.app';
             function shareSong(song) {
                 closeAllModals();
-                const text = `🎵 ${song.title} - ${song.artist} | Listen on Musico`;
+                const shareUrl = APP_URL + '?play=' + encodeURIComponent(song.id);
+                const shareText = '\uD83C\uDFB5 ' + song.title + ' | ' + (song.artist || '') + ' | Listen on Musico: ' + shareUrl;
                 if (navigator.share) {
-                    navigator.share({ title: song.title, text: text }).catch(() => {});
+                    navigator.share({
+                        title: song.title + ' — Musico',
+                        text: shareText,
+                        url: shareUrl
+                    }).catch(() => {
+                        navigator.clipboard.writeText(shareText).then(() => showToast('Link copied!')).catch(() => {});
+                    });
                 } else {
-                    navigator.clipboard.writeText(text).then(() => showToast("Song info copied to clipboard!")).catch(() => showToast("Share not supported on this device."));
+                    navigator.clipboard.writeText(shareText).then(() => showToast('Link copied to clipboard!')).catch(() => showToast('Share not supported.'));
                 }
             }
 
@@ -3684,6 +3748,60 @@ audioPlayer.addEventListener('ended', () => {
                     .then(reg => console.log('SW registered:', reg.scope))
                     .catch(err => console.log('SW failed:', err));
             });
+        }
+
+        // PWA Install Prompt
+        let _deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            _deferredPrompt = e;
+            showInstallBanner();
+        });
+
+        function showInstallBanner() {
+            if (document.getElementById('pwa-install-banner')) return;
+            // Don't show if already installed
+            if (window.matchMedia('(display-mode: standalone)').matches) return;
+            const banner = document.createElement('div');
+            banner.id = 'pwa-install-banner';
+            banner.style.cssText = `
+                position:fixed;top:0;left:0;right:0;z-index:99999;
+                background:linear-gradient(135deg,#6a11cb,#2575fc);
+                color:white;padding:12px 16px;
+                display:flex;align-items:center;gap:12px;
+                box-shadow:0 4px 20px rgba(0,0,0,0.4);
+                font-family:sans-serif;
+            `;
+            banner.innerHTML = '<img src="web-app-manifest-192x192.png" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;" onerror="this.style.display=\'none\'">'
+                + '<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:14px;">Install Musico App</div><div style="font-size:11px;opacity:0.85;">Offline songs, music controls &amp; more</div></div>'
+                + '<button id="pwa-install-btn" style="background:white;color:#6a11cb;border:none;padding:8px 14px;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;">Install</button>'
+                + '<button onclick="document.getElementById(\'pwa-install-banner\').remove()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:0 4px;flex-shrink:0;">&#x2715;</button>';
+            document.body.prepend(banner);
+            document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+                if (_deferredPrompt) {
+                    _deferredPrompt.prompt();
+                    const { outcome } = await _deferredPrompt.userChoice;
+                    _deferredPrompt = null;
+                    banner.remove();
+                }
+            });
+            // Auto-hide after 15 seconds
+            setTimeout(() => banner?.remove(), 15000);
+        }
+
+        // iOS Safari — show manual install tip
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        if (isIOS && !isStandalone) {
+            setTimeout(() => {
+                if (document.getElementById('pwa-install-banner')) return;
+                const tip = document.createElement('div');
+                tip.id = 'pwa-install-banner';
+                tip.style.cssText = 'position:fixed;bottom:80px;left:12px;right:12px;z-index:99999;background:linear-gradient(135deg,#6a11cb,#2575fc);color:white;padding:14px 16px;border-radius:16px;font-family:sans-serif;box-shadow:0 8px 32px rgba(0,0,0,0.5);';
+                tip.innerHTML = '<div style="font-weight:700;margin-bottom:4px;">📲 Install Musico on iPhone</div><div style="font-size:12px;opacity:0.9;">Tap <strong>Share</strong> (⬆) → <strong>Add to Home Screen</strong></div><button onclick="this.parentNode.remove()" style="position:absolute;top:8px;right:12px;background:none;border:none;color:white;font-size:18px;cursor:pointer;">✕</button>';
+                document.body.appendChild(tip);
+                setTimeout(() => tip?.remove(), 12000);
+            }, 3000);
         }
     </script>
 </body>
