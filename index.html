@@ -60,45 +60,137 @@
         @keyframes fadeOut { from{opacity:1} to{opacity:0} }
 
         /* --- 3. AUTHENTICATION SCREEN --- */
+        /* ═══ MODERN AUTH SCREEN ═══ */
         #auth-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none;
-            justify-content: center; align-items: center; background-color: var(--bg-primary);
-            padding: 20px; z-index: 9000; opacity: 0; transition: opacity 0.5s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; z-index: 9000; opacity: 0; transition: opacity 0.5s ease;
+            background: #0a0a0f;
+            overflow-y: auto;
         }
-        .auth-container { width: 100%; max-width: 400px; background-color: var(--bg-secondary); padding: 40px; border-radius: var(--border-radius-lg); box-shadow: var(--shadow); text-align: center; }
-        .auth-container h2 { margin-bottom: 24px; font-size: 28px; font-weight: 700; color: var(--text-primary); }
-        .auth-form input { width: 100%; padding: 14px 18px; margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); background-color: var(--bg-primary); color: var(--text-primary); font-size: 16px; }
-        .auth-form button { width: 100%; padding: 14px; border: none; border-radius: var(--border-radius-md); background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .divider { margin: 24px 0; color: var(--text-secondary); display: flex; align-items: center; }
-        .divider::before, .divider::after { content:''; flex-grow:1; background-color: var(--border-color); height: 1px; margin: 0 10px; }
-        .social-login button { width: 100%; padding: 12px; border-radius: var(--border-radius-md); margin-bottom: 10px; cursor: pointer; font-weight: 500; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background-color 0.2s ease; }
-        .google-btn { background-color: #fff; color: #333; border: 1px solid #ddd; }
-        .toggle-auth { margin-top: 20px; color: var(--text-secondary); }
-        .toggle-auth span { color: var(--accent-primary); font-weight: 600; cursor: pointer;}
-        #auth-error { color: #dc3545; margin-top: 15px; min-height: 20px; }
-        /* --- ADVANCED AUTH STYLES --- */
+        #auth-screen::before {
+            content: '';
+            position: fixed; inset: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(106,17,203,0.25) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 80%, rgba(37,117,252,0.2) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .auth-container {
+            width: 100%; max-width: 420px; margin: 0 auto;
+            padding: 0 24px 40px; min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: center;
+            position: relative;
+        }
+        /* Logo area */
+        .auth-logo {
+            text-align: center; margin-bottom: 36px; padding-top: 60px;
+        }
+        .auth-logo-icon {
+            width: 72px; height: 72px; border-radius: 20px; margin: 0 auto 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 32px rgba(106,17,203,0.4);
+            font-size: 36px;
+        }
+        .auth-logo h1 {
+            font-size: 28px; font-weight: 800; color: white; margin: 0;
+            letter-spacing: -0.5px;
+        }
+        .auth-logo p { font-size: 13px; color: rgba(255,255,255,0.45); margin: 4px 0 0; }
+
+        /* Steps */
         .auth-step { display: none; }
-        .auth-step.active { display: block; animation: fadeIn 0.3s ease; }
-        .auth-progress { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
-        .auth-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-color); transition: all 0.3s; }
-        .auth-dot.active { background: var(--accent-primary); transform: scale(1.3); }
+        .auth-step.active { display: block; animation: authFadeUp 0.35s ease; }
+        @keyframes authFadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Progress dots */
+        .auth-progress { display: flex; justify-content: center; gap: 6px; margin-bottom: 28px; }
+        .auth-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s; }
+        .auth-dot.active { background: var(--accent-primary); width: 20px; border-radius: 3px; }
         .auth-dot.done { background: var(--accent-secondary); }
-        .singer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 300px; overflow-y: auto; margin: 14px 0; }
-        .singer-card { border: 2px solid var(--border-color); border-radius: 12px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg-primary); }
-        .singer-card.selected { border-color: var(--accent-primary); background: linear-gradient(135deg, rgba(106,17,203,0.15), rgba(37,117,252,0.15)); }
-        .singer-card .s-emoji { font-size: 26px; display: block; margin-bottom: 4px; }
-        .singer-card .s-name { font-size: 11px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
-        .singer-card .s-genre { font-size: 10px; color: var(--text-secondary); }
-        .auth-back-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px; margin-bottom: 14px; padding: 0; }
-        .forgot-link { text-align: right; margin-top: -8px; margin-bottom: 14px; }
+
+        /* Heading */
+        .auth-heading { font-size: 26px; font-weight: 800; color: white; margin: 0 0 6px; }
+        .auth-subtitle { font-size: 14px; color: rgba(255,255,255,0.45); margin: 0 0 28px; }
+
+        /* Input group */
+        .auth-input-group {
+            position: relative; margin-bottom: 14px;
+        }
+        .auth-input-group .auth-input-icon {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: rgba(255,255,255,0.3); font-size: 20px; pointer-events: none;
+        }
+        .auth-input-group input {
+            width: 100%; padding: 16px 16px 16px 48px;
+            background: rgba(255,255,255,0.07);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 14px; color: white; font-size: 15px;
+            outline: none; transition: border 0.2s, background 0.2s;
+            box-sizing: border-box; font-family: inherit;
+        }
+        .auth-input-group input::placeholder { color: rgba(255,255,255,0.3); }
+        .auth-input-group input:focus {
+            border-color: var(--accent-primary);
+            background: rgba(106,17,203,0.12);
+        }
+        .auth-input-group .eye-btn {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; padding: 4px;
+            color: rgba(255,255,255,0.35); font-size: 20px; line-height: 1;
+            display: flex; align-items: center;
+        }
+        .auth-input-group .eye-btn:hover { color: rgba(255,255,255,0.7); }
+
+        /* Forgot link */
+        .forgot-link { text-align: right; margin: -6px 0 18px; }
         .forgot-link span { color: var(--accent-primary); font-size: 13px; font-weight: 600; cursor: pointer; }
-        .auth-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; text-align: center; }
-        .sel-count { font-size: 12px; color: var(--text-secondary); text-align: center; margin-bottom: 8px; }
+
+        /* Auth button */
+        .auth-btn {
+            width: 100%; padding: 16px; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white; font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            font-family: inherit; letter-spacing: 0.3px;
+            box-shadow: 0 4px 20px rgba(106,17,203,0.4);
+            margin-top: 6px;
+        }
+        .auth-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* Toggle */
+        .toggle-auth { margin-top: 24px; color: rgba(255,255,255,0.4); text-align: center; font-size: 14px; }
+        .toggle-auth span { color: var(--accent-primary); font-weight: 600; cursor: pointer; }
+
+        /* Error */
+        #auth-error { font-size: 13px; margin-top: 12px; min-height: 18px; text-align: center; font-weight: 500; }
+
+        /* Back button */
+        .auth-back-btn {
+            background: none; border: none; color: rgba(255,255,255,0.5);
+            cursor: pointer; font-size: 13px; display: flex; align-items: center;
+            gap: 6px; margin-bottom: 20px; padding: 0; font-family: inherit;
+        }
+        .auth-back-btn:hover { color: white; }
+
+        /* Singer selection */
+        .singer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 280px; overflow-y: auto; margin: 14px 0; }
+        .singer-card {
+            border: 2px solid rgba(255,255,255,0.1); border-radius: 14px;
+            padding: 12px 8px; text-align: center; cursor: pointer;
+            transition: all 0.2s; background: rgba(255,255,255,0.05);
+        }
+        .singer-card.selected {
+            border-color: var(--accent-primary);
+            background: rgba(106,17,203,0.2);
+        }
+        .singer-card .s-emoji { font-size: 24px; display: block; margin-bottom: 4px; }
+        .singer-card .s-name { font-size: 11px; font-weight: 600; color: white; line-height: 1.2; }
+        .singer-card .s-genre { font-size: 10px; color: rgba(255,255,255,0.4); }
+        .sel-count { font-size: 12px; color: rgba(255,255,255,0.4); text-align: center; margin-bottom: 8px; }
         .sel-count span { color: var(--accent-primary); font-weight: 700; }
-        .skip-link { text-align: center; margin-top: 12px; color: var(--text-secondary); font-size: 13px; cursor: pointer; }
-        .skip-link span { color: var(--accent-primary); font-weight: 600; }
-        .auth-or { text-align:center; margin:14px 0; color:var(--text-secondary); font-size:13px; display:flex; align-items:center; gap:8px; }
-        .auth-or::before, .auth-or::after { content:''; flex:1; height:1px; background:var(--border-color); }
+        .skip-link { text-align: center; margin-top: 14px; cursor: pointer; }
+        .skip-link span { color: rgba(255,255,255,0.4); font-size: 13px; }
+        .skip-link span:hover { color: white; }
 
         /* --- 4. MAIN APP LAYOUT --- */
         #main-app { display: none; flex-direction: column; height: 100vh; height: 100dvh; width: 100vw; overflow: hidden; opacity: 0; transition: opacity 0.5s ease; }
@@ -554,6 +646,185 @@
         .profile-tab-content { display: none; padding-top: 16px; }
         .profile-tab-content.active { display: block; }
         
+        /* --- CHAT PAGE --- */
+        #chat-page { display:none; flex-direction:column; height:100%; }
+        #chat-page.active { display:flex; }
+        #chat-room-view { display:none; }
+        #chat-room-view.active { display:flex !important; }
+        .chat-conv-item {
+            display:flex; align-items:center; gap:12px; padding:12px 0;
+            border-bottom:1px solid var(--border-color); cursor:pointer; transition:background .15s;
+        }
+        .chat-conv-item:active { background:rgba(128,128,128,.07); }
+        .chat-conv-avatar {
+            width:50px; height:50px; border-radius:50%; flex-shrink:0;
+            background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+            display:flex;align-items:center;justify-content:center;color:white;
+            font-weight:700;font-size:18px;overflow:hidden;position:relative;
+        }
+        .chat-conv-avatar .online-dot {
+            position:absolute;bottom:2px;right:2px;width:11px;height:11px;
+            border-radius:50%;background:#22c55e;border:2px solid var(--bg-primary);
+        }
+        .chat-conv-info { flex:1; min-width:0; }
+        .chat-conv-name { font-size:15px;font-weight:700;margin-bottom:2px; }
+        .chat-conv-last { font-size:13px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+        .chat-conv-time { font-size:11px;color:var(--text-secondary);flex-shrink:0; }
+        .chat-unread-badge { background:var(--accent-primary);color:white;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:700;flex-shrink:0; }
+
+        /* Chat messages */
+        .chat-msg-wrap { display:flex; margin:3px 0; }
+        .chat-msg-wrap.sent { justify-content:flex-end; }
+        .chat-msg-wrap.received { justify-content:flex-start; }
+        .chat-bubble {
+            max-width:72%; padding:10px 14px; border-radius:18px;
+            font-size:14px; line-height:1.5; word-break:break-word;
+        }
+        .chat-msg-wrap.sent .chat-bubble {
+            background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+            color:white; border-bottom-right-radius:4px;
+        }
+        .chat-msg-wrap.received .chat-bubble {
+            background:var(--bg-secondary); color:var(--text-primary);
+            border-bottom-left-radius:4px;
+        }
+        .chat-msg-time { font-size:10px; opacity:.6; margin-top:4px; text-align:right; }
+        .chat-date-divider { text-align:center;font-size:11px;color:var(--text-secondary);font-weight:600;padding:8px 0;letter-spacing:.3px; }
+        .chat-song-card {
+            background:rgba(138,79,255,.12); border:1px solid rgba(138,79,255,.3);
+            border-radius:12px; padding:10px 12px; display:flex; gap:10px;
+            align-items:center; margin-top:4px; cursor:pointer;
+        }
+        .chat-song-card img { width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0; }
+        .chat-song-card-info { min-width:0; flex:1; }
+        .chat-song-card-title { font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+        .chat-song-card-artist { font-size:11px;opacity:.7; }
+
+        /* Profile friends */
+        .friend-list-item { display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-color); }
+        .friend-avatar { width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;overflow:hidden;flex-shrink:0; }
+        .friend-info { flex:1;min-width:0; }
+        .friend-name { font-size:15px;font-weight:600; }
+        .friend-sub { font-size:12px;color:var(--text-secondary);margin-top:1px; }
+        .friend-action-btn { padding:7px 14px;border-radius:20px;border:none;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0; }
+        .friend-action-btn.accept { background:var(--accent-primary);color:white; }
+        .friend-action-btn.reject { background:transparent;border:1px solid var(--border-color);color:var(--text-secondary); }
+        .friend-action-btn.chat-btn { background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color); }
+        .friend-action-btn.add { background:var(--accent-primary);color:white; }
+
+        /* Playlist view hero tweaks */
+        #playlist-view-hero { display:flex;gap:16px;align-items:flex-start;padding:0 0 20px;margin-bottom:4px; }
+
+        /* --- END NEW CSS --- */
+        /* Forgot password & guest links in auth */
+        #home-search-wrapper {
+            margin: 10px 0 14px;
+        }
+        #home-search-bar {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--bg-secondary); border-radius: 14px;
+            padding: 13px 16px; cursor: pointer;
+            box-shadow: var(--shadow); border: 1.5px solid var(--border-color);
+            transition: border-color 0.2s;
+        }
+        #home-search-bar:active { border-color: var(--accent-primary); transform: scale(0.99); }
+        #home-search-bar .material-icons { color: var(--accent-primary); font-size: 22px; }
+        #home-search-placeholder { color: var(--text-secondary); font-size: 15px; }
+
+        /* HOME SEARCH OVERLAY */
+        #home-search-overlay {
+            position: fixed; inset: 0; z-index: 5000;
+            background: var(--bg-primary);
+            display: flex; flex-direction: column;
+            transform: translateY(-100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #home-search-overlay.open {
+            transform: translateY(0);
+        }
+        #home-search-overlay.hidden { display: none; }
+        #home-search-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 16px 16px 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        #home-search-back-btn {
+            background: none; border: none; color: var(--text-primary);
+            cursor: pointer; display: flex; align-items: center; padding: 4px;
+        }
+        #home-search-input-wrap {
+            flex: 1; display: flex; align-items: center; gap: 8px;
+            background: var(--bg-primary); border-radius: 12px;
+            padding: 10px 14px; border: 1.5px solid var(--border-color);
+        }
+        #home-search-input-wrap:focus-within { border-color: var(--accent-primary); }
+        #home-search-input {
+            flex: 1; background: none; border: none; outline: none;
+            color: var(--text-primary); font-size: 15px; font-family: inherit;
+        }
+        #home-search-input::placeholder { color: var(--text-secondary); }
+        #home-search-clear-btn {
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; display: flex; align-items: center; padding: 0;
+        }
+        #home-search-body {
+            flex: 1; overflow-y: auto; padding: 16px;
+        }
+
+        /* Recent search chips */
+        #home-recent-chips {
+            display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .home-recent-chip {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 7px 12px; cursor: pointer;
+            font-size: 13px; color: var(--text-primary); transition: background 0.15s;
+        }
+        .home-recent-chip:active { background: var(--accent-primary); color: white; }
+        .home-recent-chip .material-icons { font-size: 15px; color: var(--text-secondary); }
+
+        /* Live suggestions */
+        #home-live-suggestions {
+            margin-bottom: 8px;
+        }
+        .home-suggestion-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 0; border-bottom: 1px solid var(--border-color);
+            cursor: pointer; transition: background 0.1s;
+        }
+        .home-suggestion-item:last-child { border-bottom: none; }
+        .home-suggestion-item .sug-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; overflow: hidden;
+        }
+        .home-suggestion-item .sug-icon img { width:100%;height:100%;object-fit:cover; }
+        .home-suggestion-item .sug-text { flex: 1; min-width: 0; }
+        .home-suggestion-item .sug-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .home-suggestion-item .sug-sub { font-size: 12px; color: var(--text-secondary); }
+        .home-suggestion-item .material-icons.sug-arr { color: var(--text-secondary); font-size: 18px; }
+
+        /* Similar playlist section */
+        #home-similar-playlist-list .list-item {
+            display: flex; align-items: center; padding: 10px 0;
+            border-bottom: 1px solid var(--border-color); cursor: pointer;
+        }
+
+        /* Coming soon chat badge */
+        .nav-item-chat-soon { opacity: 0.6; cursor: default; }
+        .nav-item-chat-soon:active { transform: none !important; }
+
+        /* Playlist share btn in library */
+        .pl-share-btn {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-secondary); padding: 4px; display: flex; align-items: center;
+        }
+        .pl-share-btn:hover { color: var(--accent-primary); }
+
+        /* --- END HOME SEARCH CSS --- */
         /* Forgot password & guest links in auth */
         .auth-links { display: flex; justify-content: space-between; margin: -8px 0 12px; }
         .auth-links span { font-size: 13px; color: var(--accent-primary); cursor: pointer; font-weight: 500; }
@@ -577,59 +848,106 @@
 
     <div id="auth-screen">
         <div class="auth-container">
-            <!-- PROGRESS DOTS -->
+            <!-- Logo -->
+            <div class="auth-logo">
+                <div class="auth-logo-icon">🎵</div>
+                <h1>Musico</h1>
+                <p>Your Music Universe</p>
+            </div>
+
+            <!-- Progress dots -->
             <div class="auth-progress">
                 <div class="auth-dot active" id="dot-0"></div>
                 <div class="auth-dot" id="dot-1"></div>
                 <div class="auth-dot" id="dot-2"></div>
             </div>
 
-            <!-- STEP: LOGIN -->
+            <!-- ── LOGIN ── -->
             <div class="auth-step active" id="auth-step-login">
-                <h2>Welcome Back 🎵</h2>
-                <p class="auth-subtitle">Login karo — music sunna shuru karo</p>
-                <form id="login-form" class="auth-form">
-                    <input type="email" id="login-email" placeholder="Email" required>
-                    <input type="password" id="login-password" placeholder="Password" required>
-                    <div class="forgot-link"><span id="forgot-password-btn">Forgot Password?</span></div>
-                    <button type="submit">Log In</button>
+                <h2 class="auth-heading">Welcome back</h2>
+                <p class="auth-subtitle">Login karke sunna shuru karo</p>
+
+                <form id="login-form">
+                    <div class="auth-input-group">
+                        <span class="auth-input-icon material-icons">mail_outline</span>
+                        <input type="email" id="login-email" placeholder="Email address" required autocomplete="email">
+                    </div>
+                    <div class="auth-input-group">
+                        <span class="auth-input-icon material-icons">lock_outline</span>
+                        <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+                        <button type="button" class="eye-btn" onclick="togglePwd('login-password',this)">
+                            <span class="material-icons">visibility_off</span>
+                        </button>
+                    </div>
+                    <div class="forgot-link"><span id="forgot-password-btn">Forgot password?</span></div>
+                    <button type="submit" class="auth-btn">Log In</button>
                 </form>
-                <p class="toggle-auth" style="margin-top:16px;">Don't have an account? <span id="auth-toggle-btn" style="color:var(--accent-primary);font-weight:600;cursor:pointer;">Sign Up</span></p>
+
+                <p class="toggle-auth">Don't have an account? <span id="auth-toggle-btn">Sign Up</span></p>
             </div>
 
-            <!-- STEP: SIGNUP STEP 1 — Basic Info -->
+            <!-- ── SIGNUP ── -->
             <div class="auth-step" id="auth-step-signup">
-                <button class="auth-back-btn" id="back-to-login-btn"><span class="material-icons" style="font-size:16px;">arrow_back</span> Back to Login</button>
-                <h2>Create Account 🎶</h2>
-                <p class="auth-subtitle">Join Musico — your music universe</p>
-                <form id="signup-form" class="auth-form">
-                    <input type="text" id="signup-name" placeholder="Your Name" required>
-                    <input type="email" id="signup-email" placeholder="Email" required>
-                    <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required>
-                    <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required>
-                    <button type="submit">Next →</button>
+                <button class="auth-back-btn" id="back-to-login-btn">
+                    <span class="material-icons" style="font-size:18px;">arrow_back_ios</span> Back
+                </button>
+                <h2 class="auth-heading">Create account</h2>
+                <p class="auth-subtitle">Join Musico — free forever</p>
+
+                <form id="signup-form">
+                    <div class="auth-input-group">
+                        <span class="auth-input-icon material-icons">person_outline</span>
+                        <input type="text" id="signup-name" placeholder="Your name" required autocomplete="name">
+                    </div>
+                    <div class="auth-input-group">
+                        <span class="auth-input-icon material-icons">mail_outline</span>
+                        <input type="email" id="signup-email" placeholder="Email address" required autocomplete="email">
+                    </div>
+                    <div class="auth-input-group">
+                        <span class="auth-input-icon material-icons">lock_outline</span>
+                        <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required>
+                        <button type="button" class="eye-btn" onclick="togglePwd('signup-password',this)">
+                            <span class="material-icons">visibility_off</span>
+                        </button>
+                    </div>
+                    <div class="auth-input-group">
+                        <span class="auth-input-icon material-icons">lock_outline</span>
+                        <input type="password" id="signup-confirm-password" placeholder="Confirm password" required>
+                        <button type="button" class="eye-btn" onclick="togglePwd('signup-confirm-password',this)">
+                            <span class="material-icons">visibility_off</span>
+                        </button>
+                    </div>
+                    <button type="submit" class="auth-btn">Continue →</button>
                 </form>
-                <p class="toggle-auth" style="margin-top:12px;">Already have an account? <span id="goto-login-btn" style="color:var(--accent-primary);font-weight:600;cursor:pointer;">Log In</span></p>
+
+                <p class="toggle-auth">Already have an account? <span id="goto-login-btn">Log In</span></p>
             </div>
 
-            <!-- STEP: FAVORITE SINGERS -->
+            <!-- ── SINGERS SELECTION ── -->
             <div class="auth-step" id="auth-step-singers">
-                <button class="auth-back-btn" id="back-to-signup-btn"><span class="material-icons" style="font-size:16px;">arrow_back</span> Back</button>
-                <h2>Pick Your Vibe 🎤</h2>
-                <p class="auth-subtitle">Apne favorite artists chunno — hum feed personalize karenge</p>
-                <div class="sel-count"><span id="singer-sel-count">0</span> / 3+ selected</div>
+                <button class="auth-back-btn" id="back-to-signup-btn">
+                    <span class="material-icons" style="font-size:18px;">arrow_back_ios</span> Back
+                </button>
+                <h2 class="auth-heading">Pick your vibe 🎤</h2>
+                <p class="auth-subtitle">Favorite artists chunno — feed personalize hogi</p>
+                <div class="sel-count"><span id="singer-sel-count">0</span> selected (3+ recommended)</div>
                 <div class="singer-grid" id="singer-grid"></div>
-                <button id="finish-signup-btn" style="width:100%;padding:14px;border:none;border-radius:var(--border-radius-md);background:linear-gradient(45deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:16px;font-weight:600;cursor:pointer;margin-top:8px;">Finish Setup 🎉</button>
+                <button id="finish-signup-btn" class="auth-btn" style="margin-top:16px;">Finish Setup 🎉</button>
                 <div class="skip-link"><span id="skip-singers-btn">Skip for now</span></div>
             </div>
 
-            <!-- STEP: FORGOT PASSWORD -->
+            <!-- ── FORGOT PASSWORD ── -->
             <div class="auth-step" id="auth-step-forgot">
-                <button class="auth-back-btn" id="back-from-forgot-btn"><span class="material-icons" style="font-size:16px;">arrow_back</span> Back to Login</button>
-                <h2>Reset Password 🔑</h2>
-                <p class="auth-subtitle">Email daalo — reset link bhej denge</p>
-                <input type="email" id="forgot-email" placeholder="Your email address" style="width:100%;padding:14px 18px;border:1px solid var(--border-color);border-radius:var(--border-radius-md);background:var(--bg-primary);color:var(--text-primary);font-size:16px;margin-bottom:16px;">
-                <button id="send-reset-btn" style="width:100%;padding:14px;border:none;border-radius:var(--border-radius-md);background:linear-gradient(45deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:16px;font-weight:600;cursor:pointer;">Send Reset Email</button>
+                <button class="auth-back-btn" id="back-from-forgot-btn">
+                    <span class="material-icons" style="font-size:18px;">arrow_back_ios</span> Back
+                </button>
+                <h2 class="auth-heading">Reset password 🔑</h2>
+                <p class="auth-subtitle">Email daalo — reset link bhejenge</p>
+                <div class="auth-input-group">
+                    <span class="auth-input-icon material-icons">mail_outline</span>
+                    <input type="email" id="forgot-email" placeholder="Email address">
+                </div>
+                <button id="send-reset-btn" class="auth-btn" style="margin-top:8px;">Send Reset Email</button>
             </div>
 
             <p id="auth-error"></p>
@@ -660,6 +978,55 @@
                 <div id="offline-mode-btn">
                     <span class="material-icons" style="vertical-align: bottom; margin-right: 8px;">wifi_off</span>
                     You are offline. Go to Downloads
+                </div>
+
+                <!-- HOME SEARCH BAR -->
+                <div id="home-search-wrapper">
+                    <div id="home-search-bar" onclick="openHomeSearch()">
+                        <span class="material-icons" id="home-search-icon">search</span>
+                        <span id="home-search-placeholder">Songs, artists, albums...</span>
+                    </div>
+                </div>
+
+                <!-- HOME SEARCH OVERLAY -->
+                <div id="home-search-overlay" class="hidden">
+                    <div id="home-search-header">
+                        <button id="home-search-back-btn" onclick="closeHomeSearch()">
+                            <span class="material-icons">arrow_back</span>
+                        </button>
+                        <div id="home-search-input-wrap">
+                            <span class="material-icons" style="color:var(--text-secondary);font-size:20px;">search</span>
+                            <input type="text" id="home-search-input" placeholder="Songs, artists, albums..." autocomplete="off" spellcheck="false">
+                            <button id="home-search-clear-btn" class="hidden" onclick="clearHomeSearch()">
+                                <span class="material-icons">close</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="home-search-body">
+                        <!-- Recent searches -->
+                        <div id="home-recent-section">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                                <span style="font-size:14px;font-weight:700;color:var(--text-secondary);">Recent Searches</span>
+                                <button onclick="clearHomeRecentSearches()" style="background:none;border:none;color:var(--accent-primary);font-size:12px;cursor:pointer;font-weight:600;">Clear All</button>
+                            </div>
+                            <div id="home-recent-chips"></div>
+                        </div>
+                        <!-- Live suggestions while typing -->
+                        <div id="home-live-suggestions" class="hidden"></div>
+                        <!-- Search results + similar playlist -->
+                        <div id="home-search-results-wrap" class="hidden">
+                            <div id="home-search-results-list"></div>
+                            <div id="home-similar-playlist-section" class="hidden">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px;">
+                                    <h3 style="font-size:16px;font-weight:700;">🎵 Similar Songs Playlist</h3>
+                                    <button id="home-play-similar-btn" style="padding:8px 16px;border:none;border-radius:20px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                                        <span class="material-icons" style="font-size:16px;">play_arrow</span> Play All
+                                    </button>
+                                </div>
+                                <div id="home-similar-playlist-list"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="slider-container">
                     <div class="slider-track" id="home-slider-track"></div>
@@ -762,10 +1129,81 @@
                 <div id="library-content"></div>
             </div>
 
+            <!-- CHAT PAGE -->
+            <div id="chat-page" class="page">
+                <div id="chat-list-view">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0 14px;">
+                        <h2 style="font-size:22px;font-weight:800;">Messages</h2>
+                        <button id="new-chat-btn" style="background:none;border:none;cursor:pointer;color:var(--accent-primary);display:flex;align-items:center;gap:4px;font-size:14px;font-weight:700;">
+                            <span class="material-icons">edit_square</span>
+                        </button>
+                    </div>
+                    <!-- Search friends to chat -->
+                    <div id="chat-friends-search-wrap" style="margin-bottom:16px;display:flex;align-items:center;gap:8px;background:var(--bg-secondary);border-radius:12px;padding:10px 14px;">
+                        <span class="material-icons" style="color:var(--text-secondary);font-size:20px;">search</span>
+                        <input type="text" id="chat-friend-search-input" placeholder="Search friends..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-size:14px;font-family:inherit;">
+                    </div>
+                    <div id="chat-conversations-list">
+                        <div id="chat-empty-state" style="text-align:center;padding:50px 20px;color:var(--text-secondary);">
+                            <span class="material-icons" style="font-size:56px;opacity:.3;display:block;margin-bottom:14px;">chat_bubble_outline</span>
+                            <p style="font-size:16px;font-weight:600;margin-bottom:6px;">No conversations yet</p>
+                            <p style="font-size:13px;">Add friends and start chatting!</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Individual Chat View -->
+                <div id="chat-room-view" style="display:none;flex-direction:column;height:100%;">
+                    <div id="chat-room-header" style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border-color);position:sticky;top:0;background:var(--bg-primary);z-index:10;">
+                        <button id="chat-back-btn" style="background:none;border:none;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;padding:4px;">
+                            <span class="material-icons">arrow_back</span>
+                        </button>
+                        <div id="chat-room-avatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden;"></div>
+                        <div style="flex:1;min-width:0;">
+                            <div id="chat-room-name" style="font-size:16px;font-weight:700;"></div>
+                            <div id="chat-room-status" style="font-size:12px;color:var(--accent-primary);"></div>
+                        </div>
+                        <button id="chat-share-song-btn" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;" title="Share playing song">
+                            <span class="material-icons">library_music</span>
+                        </button>
+                    </div>
+                    <div id="chat-messages-container" style="flex:1;overflow-y:auto;padding:12px 0;display:flex;flex-direction:column;gap:2px;"></div>
+                    <div id="chat-input-bar" style="display:flex;align-items:flex-end;gap:8px;padding:10px 0;border-top:1px solid var(--border-color);position:sticky;bottom:0;background:var(--bg-primary);">
+                        <div style="flex:1;background:var(--bg-secondary);border-radius:22px;padding:10px 16px;border:1.5px solid var(--border-color);display:flex;align-items:flex-end;gap:8px;">
+                            <textarea id="chat-message-input" placeholder="Message..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-family:inherit;font-size:15px;resize:none;max-height:100px;line-height:1.4;" rows="1"></textarea>
+                        </div>
+                        <button id="chat-send-btn" style="width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s;">
+                            <span class="material-icons">send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div id="playlist-view-page" class="page">
                 <div class="playlist-header">
                     <button id="playlist-view-back-btn" class="back-btn"><span class="material-icons">arrow_back</span></button>
                     <h2 id="playlist-view-title" class="section-title" style="margin-bottom: 0; padding-top: 0;">Playlist</h2>
+                </div>
+                <!-- Playlist Detail Hero -->
+                <div id="playlist-view-hero" style="display:flex;gap:16px;align-items:flex-start;padding:0 0 20px;margin-bottom:4px;">
+                    <div id="playlist-view-cover" style="width:110px;height:110px;border-radius:14px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);">
+                        <span class="material-icons" style="color:white;font-size:40px;">queue_music</span>
+                    </div>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;padding-top:4px;">
+                        <div id="playlist-view-type" style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-secondary);font-weight:700;"></div>
+                        <div id="playlist-view-name" style="font-size:20px;font-weight:800;color:var(--text-primary);line-height:1.2;"></div>
+                        <div id="playlist-view-meta" style="font-size:13px;color:var(--text-secondary);"></div>
+                        <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;">
+                            <button id="playlist-view-play-btn" style="display:flex;align-items:center;gap:6px;padding:10px 20px;border:none;border-radius:24px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:14px;font-weight:700;cursor:pointer;">
+                                <span class="material-icons" style="font-size:18px;">play_arrow</span>Play
+                            </button>
+                            <button id="playlist-view-like-btn" style="display:flex;align-items:center;gap:5px;padding:10px 14px;border:1.5px solid var(--border-color);border-radius:24px;background:transparent;color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;">
+                                <span class="material-icons" style="font-size:18px;">favorite_border</span>
+                            </button>
+                            <button id="playlist-view-share-btn" style="display:flex;align-items:center;gap:5px;padding:10px 14px;border:1.5px solid var(--border-color);border-radius:24px;background:transparent;color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;">
+                                <span class="material-icons" style="font-size:18px;">share</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div id="playlist-view-list" class="search-results-list"></div>
             </div>
@@ -793,9 +1231,14 @@
             <div id="profile-page" class="page">
                 <div class="profile-header-bar">
                     <h2 id="profile-username-title">Profile</h2>
-                    <button class="settings-icon-btn" id="open-settings-btn">
-                        <span class="material-icons">settings</span>
-                    </button>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button id="share-profile-id-btn" style="background:none;border:none;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;padding:4px;" title="Share your ID">
+                            <span class="material-icons">link</span>
+                        </button>
+                        <button class="settings-icon-btn" id="open-settings-btn">
+                            <span class="material-icons">settings</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="profile-info-row">
                     <div class="profile-avatar" id="profile-avatar-el" style="cursor:pointer;position:relative;" title="Tap to change photo">
@@ -810,20 +1253,36 @@
                             <div class="stat-num" id="stat-playlists-count">0</div>
                             <div class="stat-label">Playlists</div>
                         </div>
-                        <div class="profile-stat" data-profile-tab="liked">
-                            <div class="stat-num" id="stat-liked-count">0</div>
-                            <div class="stat-label">Liked</div>
+                        <div class="profile-stat" id="stat-friends-item" onclick="showFriendsModal('friends')">
+                            <div class="stat-num" id="stat-friends-count">0</div>
+                            <div class="stat-label">Friends</div>
                         </div>
-                        <div class="profile-stat" data-profile-tab="downloads">
-                            <div class="stat-num" id="stat-downloads-count">0</div>
-                            <div class="stat-label">Downloads</div>
+                        <div class="profile-stat" id="stat-followers-item" onclick="showFriendsModal('followers')">
+                            <div class="stat-num" id="stat-followers-count">0</div>
+                            <div class="stat-label">Followers</div>
                         </div>
                     </div>
                 </div>
                 <div class="profile-name-section">
                     <div class="pname" id="profile-display-name">—</div>
-                    <div class="pemail" id="profile-display-email">—</div>
+                    <div id="profile-uid-display" style="font-size:11px;color:var(--text-secondary);margin-top:2px;font-family:monospace;letter-spacing:.3px;"></div>
+                    <div id="profile-bio-display" style="font-size:13px;color:var(--text-secondary);margin-top:6px;line-height:1.5;white-space:pre-line;"></div>
                     <div id="profile-badge-area"></div>
+                </div>
+                <!-- Friend action buttons -->
+                <div id="profile-friend-actions" style="display:flex;gap:8px;margin:10px 0 4px;">
+                    <button id="send-friend-request-btn" style="flex:1;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:14px;font-weight:700;cursor:pointer;display:none;">
+                        <span class="material-icons" style="font-size:16px;vertical-align:middle;">person_add</span> Add Friend
+                    </button>
+                    <button id="find-friends-btn" style="flex:1;padding:10px;border:1.5px solid var(--accent-primary);border-radius:10px;background:transparent;color:var(--accent-primary);font-size:14px;font-weight:700;cursor:pointer;">
+                        <span class="material-icons" style="font-size:16px;vertical-align:middle;">search</span> Find Friends
+                    </button>
+                </div>
+                <!-- Pending requests badge -->
+                <div id="friend-requests-banner" style="display:none;background:rgba(138,79,255,0.1);border:1px solid var(--accent-primary);border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="showFriendsModal('requests')">
+                    <span class="material-icons" style="color:var(--accent-primary);">notifications</span>
+                    <span id="friend-requests-text" style="font-size:13px;font-weight:600;color:var(--accent-primary);flex:1;"></span>
+                    <span class="material-icons" style="color:var(--text-secondary);font-size:18px;">chevron_right</span>
                 </div>
                 <button class="profile-upgrade-btn hidden" id="profile-upgrade-btn">
                     <span class="material-icons">auto_awesome</span> Sign in with Google to save your progress
@@ -936,7 +1395,7 @@
         
         <nav id="bottom-nav">
             <div class="nav-item active" data-page="home-page"><span class="material-icons">home</span><span>Home</span></div>
-            <div class="nav-item" data-page="search-page"><span class="material-icons">search</span><span>Search</span></div>
+            <div class="nav-item" data-page="chat-page"><span class="material-icons">chat_bubble_outline</span><span>Chat</span></div>
             <div class="nav-item" data-page="library-page"><span class="material-icons">library_music</span><span>Library</span></div>
             <div class="nav-item" data-page="profile-page"><span class="material-icons">account_circle</span><span>Profile</span></div>
         </nav>
@@ -1126,6 +1585,58 @@
         </div>
     </div>
 
+    <!-- FRIENDS MODAL -->
+    <div id="friends-modal" class="modal-overlay">
+        <div class="modal-content" style="max-height:85vh;">
+            <div class="modal-header">
+                <h3 id="friends-modal-title">Friends</h3>
+                <span class="material-icons close-btn">close</span>
+            </div>
+            <div class="modal-toggle-bar" id="friends-tabs">
+                <div class="toggle-btn active" data-friends-tab="friends">Friends</div>
+                <div class="toggle-btn" data-friends-tab="followers">Followers</div>
+                <div class="toggle-btn" data-friends-tab="requests">Requests</div>
+            </div>
+            <div id="friends-list-container" style="overflow-y:auto;flex:1;"></div>
+        </div>
+    </div>
+
+    <!-- FIND FRIENDS MODAL -->
+    <div id="find-friends-modal" class="modal-overlay">
+        <div class="modal-content" style="max-height:85vh;">
+            <div class="modal-header">
+                <h3>Find Friends</h3>
+                <span class="material-icons close-btn">close</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:var(--bg-primary);border:1.5px solid var(--border-color);border-radius:12px;padding:10px 14px;margin-bottom:16px;">
+                <span class="material-icons" style="color:var(--text-secondary);">search</span>
+                <input type="text" id="find-friend-input" placeholder="Search by name or ID..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-size:15px;font-family:inherit;">
+                <button id="find-friend-search-btn" style="background:var(--accent-primary);color:white;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;">Search</button>
+            </div>
+            <div id="find-friend-results"></div>
+        </div>
+    </div>
+
+    <!-- PROFILE ID SHARE MODAL -->
+    <div id="share-id-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Your Musico ID</h3>
+                <span class="material-icons close-btn">close</span>
+            </div>
+            <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">Share this ID with friends so they can find and add you on Musico.</p>
+            <div style="background:var(--bg-primary);border:1.5px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;margin-bottom:14px;">
+                <div id="share-id-value" style="font-size:18px;font-weight:800;font-family:monospace;color:var(--accent-primary);letter-spacing:2px;word-break:break-all;"></div>
+            </div>
+            <button id="copy-id-btn" style="width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <span class="material-icons">content_copy</span> Copy ID
+            </button>
+            <button id="share-id-btn-action" style="width:100%;padding:13px;border:1.5px solid var(--border-color);border-radius:12px;background:transparent;color:var(--text-primary);font-size:15px;font-weight:600;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <span class="material-icons">share</span> Share via...
+            </button>
+        </div>
+    </div>
+
     <script type="module">
     // Firebase SDK imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
@@ -1149,10 +1660,15 @@
         updateDoc,
         collection,
         getDocs,
+        addDoc,
         arrayUnion,
         arrayRemove,
         Timestamp,
-        increment
+        increment,
+        query,
+        orderBy,
+        limit,
+        onSnapshot
     } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
     // !!! IMPORTANT - FIREBASE CONFIG !!!
@@ -1250,14 +1766,19 @@
                 updateHeader();
                 updateClaimButton();
                 await loadDownloadedSongsFromDB();
+                handlePlaylistUrlParam();
+                setupProfileActions();
+                initChatPage();
             }
 
             // ── PUSH NOTIFICATIONS (Web Push via Service Worker) ──
             async function requestNotificationPermission() {
                 if (!('Notification' in window)) return false;
-                if (Notification.permission === 'granted') return true;
-                const result = await Notification.requestPermission();
-                return result === 'granted';
+                try {
+                    if (Notification.permission === 'granted') return true;
+                    const result = await Notification.requestPermission();
+                    return result === 'granted';
+                } catch(e) { return false; }
             }
 
             async function showLocalNotification(title, body, icon, songId) {
@@ -1292,7 +1813,7 @@
 
             // Ask permission on first load (after user interaction)
             document.addEventListener('click', async function askOnce() {
-                if (Notification.permission === 'default') {
+                if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
                     await requestNotificationPermission();
                 }
                 document.removeEventListener('click', askOnce);
@@ -1450,11 +1971,33 @@
                 }
             }
 
-            function navigateTo(pageId) {
+            let _navHistory = [];
+            function navigateTo(pageId, pushHistory = true) {
+                const current = document.querySelector('.page.active');
+                if (current && pushHistory && current.id !== pageId) {
+                    _navHistory.push(current.id);
+                    if (_navHistory.length > 10) _navHistory.shift();
+                }
                 pages.forEach(page => page.classList.remove('active'));
-                $(`#${pageId}`).classList.add('active');
+                const target = $(`#${pageId}`);
+                if (target) target.classList.add('active');
                 navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageId));
                 $('#app-content').scrollTop = 0;
+                // Chat page layout fix
+                if (pageId === 'chat-page') {
+                    const chatListView = $('#chat-list-view');
+                    const chatRoomView = $('#chat-room-view');
+                    if (chatListView) chatListView.style.display = 'block';
+                    if (chatRoomView) chatRoomView.style.display = 'none';
+                }
+            }
+            function navigateBack() {
+                if (_navHistory.length > 0) {
+                    const prev = _navHistory.pop();
+                    navigateTo(prev, false);
+                } else {
+                    navigateTo('home-page', false);
+                }
             }
             
             function updateHeader() {
@@ -1495,11 +2038,15 @@
 
                 // Username title
                 const displayName = userData.name || 'User';
+                const uid = currentUser ? currentUser.uid.substring(0, 8).toUpperCase() : '';
                 $('#profile-username-title').textContent = displayName;
                 $('#profile-display-name').textContent = displayName;
-                $('#profile-display-email').textContent = userData.email || (isGuest ? 'Guest Account' : '');
+                const uidEl = $('#profile-uid-display');
+                if (uidEl) uidEl.textContent = uid ? 'ID: ' + uid : '';
+                const bioEl = $('#profile-bio-display');
+                if (bioEl) bioEl.textContent = userData.bio || '';
 
-                // Avatar: base64 photo > Google photoURL > initial
+                // Avatar
                 const avatarEl = $('#profile-avatar-el');
                 if (userData.photoBase64) {
                     avatarEl.innerHTML = `<img src="${userData.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
@@ -1520,8 +2067,23 @@
 
                 // Stats
                 $('#stat-playlists-count').textContent = (userData.playlists || []).length;
-                $('#stat-liked-count').textContent = (userData.likedSongs || []).length;
-                $('#stat-downloads-count').textContent = downloadedSongs.size;
+                const friendsEl = $('#stat-friends-count');
+                const followersEl = $('#stat-followers-count');
+                if (friendsEl) friendsEl.textContent = (userData.friends || []).length;
+                if (followersEl) followersEl.textContent = (userData.followers || []).length;
+
+                // Friend requests badge
+                const pendingReqs = (userData.friendRequests || []);
+                const reqBanner = $('#friend-requests-banner');
+                const reqText = $('#friend-requests-text');
+                if (reqBanner && reqText) {
+                    if (pendingReqs.length > 0 && !isGuest) {
+                        reqBanner.style.display = 'flex';
+                        reqText.textContent = pendingReqs.length + ' pending friend request' + (pendingReqs.length > 1 ? 's' : '');
+                    } else {
+                        reqBanner.style.display = 'none';
+                    }
+                }
 
                 // Badges
                 const badgeArea = $('#profile-badge-area');
@@ -1544,11 +2106,16 @@
                 } else {
                     plContainer.innerHTML = playlists.map(pl => `
                         <div class="library-item" data-list-type="playlist" data-playlist-name="${pl.name}" style="cursor:pointer;">
-                            <div class="icon-container"><span class="material-icons" style="font-size:28px;">queue_music</span></div>
+                            <div class="icon-container">
+                                ${pl.coverImg ? `<img src="${pl.coverImg}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--border-radius-sm);">` : '<span class="material-icons" style="font-size:28px;">queue_music</span>'}
+                            </div>
                             <div class="library-item-info">
                                 <h4>${pl.name}</h4>
                                 <p>${pl.songs.length} songs · ${pl.isPublic ? '🌐 Public' : '🔒 Private'}</p>
                             </div>
+                            <button class="pl-share-btn" data-share-playlist="${pl.name}" title="Share Playlist" onclick="event.stopPropagation()">
+                                <span class="material-icons" style="font-size:20px;">share</span>
+                            </button>
                             <button class="playlist-edit-btn" data-playlist-name="${pl.name}" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:8px;margin-left:4px;border-radius:50%;flex-shrink:0;" title="Edit Playlist">
                                 <span class="material-icons" style="font-size:20px;">edit</span>
                             </button>
@@ -2147,28 +2714,113 @@
                     : '<p style="text-align:center; padding: 20px;">No results found.</p>';
             }
 
+            let _currentPlaylistViewData = null; // track current playlist for like/share
             function showListView(type, name, communityData) {
                 const titleEl = $('#playlist-view-title');
                 const contentEl = $('#playlist-view-list');
                 let songsToShow = [];
                 let isDownloadView = false;
+                let plCover = null;
+                let plType = '';
+                let plMeta = '';
+                let plOwner = '';
+                let plObj = null;
 
                 if (type === 'liked') {
                     titleEl.textContent = 'Liked Songs';
                     songsToShow = (userData.likedSongs || []).map(getSongById).filter(Boolean);
+                    plType = 'LIKED SONGS';
+                    plMeta = songsToShow.length + ' songs';
                 } else if (type === 'downloads') {
                     titleEl.textContent = 'Downloads';
                     songsToShow = Array.from(downloadedSongs.values());
                     isDownloadView = true;
+                    plType = 'DOWNLOADS';
+                    plMeta = songsToShow.length + ' songs';
                 } else if (type === 'playlist') {
                     const playlist = (userData.playlists || []).find(p => p.name === name);
                     if (!playlist) return;
                     titleEl.textContent = playlist.name;
                     songsToShow = playlist.songs.map(getSongById).filter(Boolean);
+                    plCover = playlist.coverImg || null;
+                    plType = playlist.isPublic ? '🌐 PUBLIC PLAYLIST' : '🔒 PRIVATE PLAYLIST';
+                    plMeta = songsToShow.length + ' songs';
+                    plObj = playlist;
                 } else if (type === 'community') {
-                    // communityData = { name, songs: [ids], ownerName }
-                    titleEl.textContent = (communityData.name || 'Community Playlist') + ' 🌐';
-                    songsToShow = (communityData.songs || []).map(id => getSongById(id)).filter(Boolean);
+                    const cd = communityData || {};
+                    titleEl.textContent = (cd.name || 'Community Playlist');
+                    songsToShow = (cd.songs || []).map(id => getSongById(id)).filter(Boolean);
+                    plCover = cd.coverImg || null;
+                    plType = '🌐 COMMUNITY PLAYLIST';
+                    plMeta = songsToShow.length + ' songs';
+                    plOwner = cd.ownerName ? '· by ' + cd.ownerName : '';
+                    plObj = cd;
+                }
+
+                _currentPlaylistViewData = { type, name, communityData, plObj, songsToShow };
+
+                // Update hero
+                const heroEl = $('#playlist-view-hero');
+                const coverEl = $('#playlist-view-cover');
+                const nameEl = $('#playlist-view-name');
+                const typeEl = $('#playlist-view-type');
+                const metaEl = $('#playlist-view-meta');
+
+                if (heroEl) heroEl.style.display = songsToShow.length > 0 || type !== 'downloads' ? 'flex' : 'none';
+                if (nameEl) nameEl.textContent = titleEl.textContent;
+                if (typeEl) typeEl.textContent = plType;
+                if (metaEl) metaEl.textContent = plMeta + ' ' + plOwner;
+
+                if (coverEl) {
+                    if (plCover) {
+                        coverEl.innerHTML = `<img src="${plCover}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML='<span class=material-icons style=color:white;font-size:40px>queue_music</span>'">`;
+                        coverEl.style.background = 'var(--bg-secondary)';
+                    } else if (songsToShow.length > 0 && songsToShow[0].img) {
+                        coverEl.innerHTML = `<img src="${songsToShow[0].img}" style="width:100%;height:100%;object-fit:cover;">`;
+                        coverEl.style.background = 'var(--bg-secondary)';
+                    } else {
+                        coverEl.innerHTML = `<span class="material-icons" style="color:white;font-size:40px;">queue_music</span>`;
+                        coverEl.style.background = 'linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))';
+                    }
+                }
+
+                // Play all button
+                const playBtn = $('#playlist-view-play-btn');
+                if (playBtn) {
+                    const songIds = songsToShow.map(s => s.id);
+                    playBtn.onclick = () => { if (songIds.length) playSongs(songIds, 0); };
+                    playBtn.style.display = songsToShow.length ? 'flex' : 'none';
+                }
+
+                // Like button - playlist likes stored in userData.likedPlaylists
+                const likeBtn = $('#playlist-view-like-btn');
+                if (likeBtn && plObj) {
+                    const plId = plObj.id || plObj.name || name;
+                    const likedPls = userData.likedPlaylists || [];
+                    const isLiked = likedPls.includes(plId);
+                    likeBtn.innerHTML = `<span class="material-icons" style="font-size:18px;color:${isLiked ? '#FF5252' : 'var(--text-primary)'}">${isLiked ? 'favorite' : 'favorite_border'}</span>`;
+                    likeBtn.style.display = 'flex';
+                    likeBtn.onclick = () => togglePlaylistLike(plId, likeBtn);
+                } else if (likeBtn) {
+                    likeBtn.style.display = 'none';
+                }
+
+                // Share button
+                const shareBtn = $('#playlist-view-share-btn');
+                if (shareBtn && (type === 'playlist' || type === 'community') && plObj) {
+                    shareBtn.style.display = 'flex';
+                    shareBtn.onclick = () => {
+                        if (type === 'playlist') sharePlaylist(name);
+                        else {
+                            const cd = communityData || {};
+                            const plData = btoa(encodeURIComponent(JSON.stringify({ n: cd.name, s: cd.songs || [] })));
+                            const shareUrl = APP_URL + '?playlist=' + plData;
+                            if (navigator.share) navigator.share({ title: cd.name + ' — Musico', text: '🎵 ' + cd.name, url: shareUrl }).catch(() => navigator.clipboard.writeText(shareUrl).then(() => showToast('Link copied!')));
+                            else navigator.clipboard.writeText(shareUrl).then(() => showToast('📋 Link copied!'));
+                        }
+                    };
+                } else if (shareBtn) {
+                    shareBtn.style.display = type === 'playlist' ? 'flex' : 'none';
                 }
                 
                 const songIds = songsToShow.map(s => s.id);
@@ -2177,6 +2829,25 @@
                     : '<p style="text-align:center; margin-top: 20px;">No songs here yet.</p>';
                 
                 navigateTo('playlist-view-page');
+            }
+
+            function togglePlaylistLike(plId, likeBtn) {
+                if (!userData) return;
+                if (!userData.likedPlaylists) userData.likedPlaylists = [];
+                const idx = userData.likedPlaylists.indexOf(plId);
+                if (idx === -1) {
+                    userData.likedPlaylists.push(plId);
+                    showToast('❤️ Playlist liked!');
+                } else {
+                    userData.likedPlaylists.splice(idx, 1);
+                    showToast('Removed from liked playlists');
+                }
+                if (currentUser && !currentUser.isAnonymous) {
+                    updateDoc(doc(db, 'users', currentUser.uid), { likedPlaylists: userData.likedPlaylists }).catch(() => {});
+                }
+                // Update icon
+                const isNowLiked = userData.likedPlaylists.includes(plId);
+                if (likeBtn) likeBtn.innerHTML = `<span class="material-icons" style="font-size:18px;color:${isNowLiked ? '#FF5252' : 'var(--text-primary)'}">${isNowLiked ? 'favorite' : 'favorite_border'}</span>`;
             }
             
             function createListItemHTML(song, queue, index, showDownloadActions = false) {
@@ -2608,6 +3279,41 @@ audioPlayer.addEventListener('ended', () => {
                     }
                 });
 
+                // --- CHAT COMING SOON ---
+                // (chat now has its own page, handled via nav)
+
+                // --- HOME SEARCH ---
+                const homeSearchInput = $('#home-search-input');
+                let homeSearchDebounce = null;
+                if (homeSearchInput) {
+                    homeSearchInput.addEventListener('input', e => {
+                        const q = e.target.value.trim();
+                        const clearBtn = $('#home-search-clear-btn');
+                        if (clearBtn) clearBtn.classList.toggle('hidden', !q);
+                        clearTimeout(homeSearchDebounce);
+                        homeSearchDebounce = setTimeout(() => {
+                            if (!q) {
+                                showHomeRecentSearches();
+                                const liveSug = $('#home-live-suggestions');
+                                const resWrap = $('#home-search-results-wrap');
+                                const recSec = $('#home-recent-section');
+                                if (liveSug) liveSug.classList.add('hidden');
+                                if (resWrap) resWrap.classList.add('hidden');
+                                if (recSec) recSec.classList.remove('hidden');
+                            } else {
+                                showHomeLiveSuggestions(q);
+                            }
+                        }, 120);
+                    });
+
+                    homeSearchInput.addEventListener('keydown', e => {
+                        if (e.key === 'Enter') {
+                            const q = homeSearchInput.value.trim();
+                            if (q.length >= 2) { saveHomeRecentSearch(q); doHomeSearch(q); }
+                        }
+                    });
+                } // end if(homeSearchInput)
+
                 // --- SEARCH ---
                 $('#search-input').addEventListener('input', e => {
                     const q = e.target.value;
@@ -2639,9 +3345,9 @@ audioPlayer.addEventListener('ended', () => {
                 $('#create-playlist-modal').addEventListener('click', e => { if (e.target === $('#create-playlist-modal')) closeCreatePlaylistModal(); });
 
                 // --- PLAYLIST VIEW ---
-                $('#playlist-view-back-btn').addEventListener('click', () => navigateTo('library-page'));
+                $('#playlist-view-back-btn').addEventListener('click', () => navigateBack());
                 // --- DETAIL PAGE ---
-                $('#detail-back-btn').addEventListener('click', () => navigateTo('home-page'));
+                $('#detail-back-btn').addEventListener('click', () => navigateBack());
 
                 // --- SETTINGS & MODALS ---
                 $('#logout-btn').addEventListener('click', () => signOut(auth).catch(err => showToast("Logout failed")));
@@ -2680,6 +3386,194 @@ audioPlayer.addEventListener('ended', () => {
                 $('#player-options-btn').addEventListener('click', () => { if (currentIndex >= 0) showPlayerOptionsModal(currentQueue[currentIndex].id) });
             }
             
+            // ═══════════════════════════════════════════
+            // HOME SEARCH FUNCTIONS
+            // ═══════════════════════════════════════════
+            function openHomeSearch() {
+                const overlay = $('#home-search-overlay');
+                overlay.classList.remove('hidden');
+                // Trigger animation after display
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => overlay.classList.add('open'));
+                });
+                setTimeout(() => $('#home-search-input').focus(), 350);
+                showHomeRecentSearches();
+            }
+
+            function closeHomeSearch() {
+                const overlay = $('#home-search-overlay');
+                overlay.classList.remove('open');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    $('#home-search-input').value = '';
+                    $('#home-search-clear-btn').classList.add('hidden');
+                    $('#home-live-suggestions').classList.add('hidden');
+                    $('#home-search-results-wrap').classList.add('hidden');
+                    $('#home-recent-section').classList.remove('hidden');
+                }, 350);
+            }
+
+            function clearHomeSearch() {
+                const inp = $('#home-search-input');
+                const clearBtn = $('#home-search-clear-btn');
+                const liveSug = $('#home-live-suggestions');
+                const resWrap = $('#home-search-results-wrap');
+                const recSec = $('#home-recent-section');
+                if (inp) inp.value = '';
+                if (clearBtn) clearBtn.classList.add('hidden');
+                if (liveSug) liveSug.classList.add('hidden');
+                if (resWrap) resWrap.classList.add('hidden');
+                if (recSec) recSec.classList.remove('hidden');
+                if (inp) inp.focus();
+            }
+
+            function getHomeRecentSearches() {
+                try { return JSON.parse(localStorage.getItem('homeRecentSearches') || '[]'); } catch(e) { return []; }
+            }
+
+            function saveHomeRecentSearch(q) {
+                let arr = getHomeRecentSearches().filter(x => x.toLowerCase() !== q.toLowerCase());
+                arr.unshift(q);
+                if (arr.length > 10) arr = arr.slice(0, 10);
+                localStorage.setItem('homeRecentSearches', JSON.stringify(arr));
+            }
+
+            function clearHomeRecentSearches() {
+                localStorage.removeItem('homeRecentSearches');
+                $('#home-recent-chips').innerHTML = '';
+                $('#home-recent-section').classList.add('hidden');
+            }
+
+            function showHomeRecentSearches() {
+                const arr = getHomeRecentSearches();
+                const section = $('#home-recent-section');
+                const chips = $('#home-recent-chips');
+                if (!section || !chips) return;
+                if (!arr.length) { section.classList.add('hidden'); return; }
+                section.classList.remove('hidden');
+                chips.innerHTML = arr.map(q => `
+                    <div class="home-recent-chip" onclick="homeChipSearch('${q.replace(/'/g,"\\'")}')">
+                        <span class="material-icons">history</span>${q}
+                    </div>`).join('');
+            }
+
+            window.homeChipSearch = function(q) {
+                const inp = $('#home-search-input');
+                const clearBtn = $('#home-search-clear-btn');
+                if (inp) inp.value = q;
+                if (clearBtn) clearBtn.classList.remove('hidden');
+                saveHomeRecentSearch(q);
+                doHomeSearch(q);
+            };
+
+            function showHomeLiveSuggestions(q) {
+                const recSec = $('#home-recent-section');
+                const resWrap = $('#home-search-results-wrap');
+                const container = $('#home-live-suggestions');
+                if (recSec) recSec.classList.add('hidden');
+                if (resWrap) resWrap.classList.add('hidden');
+                if (!container) return;
+                const lowerQ = q.toLowerCase();
+                const matches = allSongs.filter(s =>
+                    !s.isDeleted && !s.isHidden && (
+                        (s.title || '').toLowerCase().includes(lowerQ) ||
+                        (s.artist || '').toLowerCase().includes(lowerQ)
+                    )
+                ).slice(0, 6);
+
+                if (!matches.length) { container.classList.add('hidden'); return; }
+                container.classList.remove('hidden');
+                container.innerHTML = matches.map(s => {
+                    const img = s.img128 || s.img || '';
+                    const iconHTML = img
+                        ? `<img src="${img}" onerror="this.parentNode.style.background='linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))';">`
+                        : `<span class="material-icons" style="color:white;font-size:18px;">music_note</span>`;
+                    return `<div class="home-suggestion-item" data-song-id="${s.id}">
+                        <div class="sug-icon">${iconHTML}</div>
+                        <div class="sug-text">
+                            <div class="sug-title">${s.title}</div>
+                            <div class="sug-sub">${s.artist || ''}</div>
+                        </div>
+                        <span class="material-icons sug-arr">north_west</span>
+                    </div>`;
+                }).join('');
+                container.querySelectorAll('.home-suggestion-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const song = getSongById(item.dataset.songId);
+                        if (!song) return;
+                        $('#home-search-input').value = song.title;
+                        saveHomeRecentSearch(song.title);
+                        doHomeSearch(song.title);
+                    });
+                });
+            }
+
+            function doHomeSearch(q) {
+                $('#home-live-suggestions').classList.add('hidden');
+                $('#home-recent-section').classList.add('hidden');
+                const lowerQ = q.toLowerCase();
+                const results = allSongs.filter(s =>
+                    !s.isDeleted && !s.isHidden && (
+                        (s.title || '').toLowerCase().includes(lowerQ) ||
+                        (s.artist || '').toLowerCase().includes(lowerQ) ||
+                        (s.album || '').toLowerCase().includes(lowerQ)
+                    )
+                );
+
+                const wrap = $('#home-search-results-wrap');
+                const list = $('#home-search-results-list');
+                const simSection = $('#home-similar-playlist-section');
+
+                wrap.classList.remove('hidden');
+                const songIds = results.map(s => s.id);
+                list.innerHTML = results.length > 0
+                    ? results.map((s, i) => createListItemHTML(s, songIds, i, false, false)).join('')
+                    : `<p style="text-align:center;padding:30px;color:var(--text-secondary);">No results for "<strong>${q}</strong>"</p>`;
+
+                // Build similar songs playlist
+                buildHomeSimilarPlaylist(q, results);
+            }
+
+            function buildHomeSimilarPlaylist(q, directResults) {
+                const simSection = $('#home-similar-playlist-section');
+                const simList = $('#home-similar-playlist-list');
+                if (!directResults.length) { simSection.classList.add('hidden'); return; }
+
+                // Collect artists and categories from direct results
+                const artistSet = new Set();
+                const categorySet = new Set();
+                directResults.forEach(s => {
+                    if (s.artist) s.artist.split(',').forEach(a => artistSet.add(a.trim()));
+                    if (s.category) categorySet.add(s.category);
+                });
+                const directIds = new Set(directResults.map(s => s.id));
+
+                // Find similar songs not already in results
+                const similar = allSongs.filter(s =>
+                    !s.isDeleted && !s.isHidden && !directIds.has(s.id) && (
+                        (s.artist && [...artistSet].some(a => s.artist.includes(a))) ||
+                        (s.category && categorySet.has(s.category))
+                    )
+                ).slice(0, 12);
+
+                if (!similar.length) { simSection.classList.add('hidden'); return; }
+
+                simSection.classList.remove('hidden');
+                const allSimilarIds = similar.map(s => s.id);
+                simList.innerHTML = similar.map((s, i) => createListItemHTML(s, allSimilarIds, i, false, false)).join('');
+
+                $('#home-play-similar-btn').onclick = () => {
+                    closeHomeSearch();
+                    playSongs(allSimilarIds, 0);
+                    showToast('▶ Playing Similar Playlist');
+                };
+            }
+            // expose for onclick attr
+            window.openHomeSearch = openHomeSearch;
+            window.closeHomeSearch = closeHomeSearch;
+            window.clearHomeSearch = clearHomeSearch;
+            window.clearHomeRecentSearches = clearHomeRecentSearches;
+
             function formatTime(seconds) { const minutes = Math.floor(seconds / 60); const secs = Math.floor(seconds % 60); return `${minutes}:${secs < 10 ? '0' : ''}${secs}`; }
             function initBannerSlider() {
                 const track = $('#home-slider-track');
@@ -2896,8 +3790,21 @@ audioPlayer.addEventListener('ended', () => {
                 } catch(e) { showToast("Error claiming reward."); button.disabled = false; button.textContent = 'Claim 5 Coins'; }
             }
 
-            // --- SHARE SONG ---
-            const APP_URL = 'https://music-streaming-rho.vercel.app';
+            // ── PASSWORD VISIBILITY TOGGLE ──
+            window.togglePwd = function(inputId, btn) {
+                const inp = document.getElementById(inputId);
+                const icon = btn.querySelector('.material-icons');
+                if (inp.type === 'password') {
+                    inp.type = 'text';
+                    icon.textContent = 'visibility';
+                } else {
+                    inp.type = 'password';
+                    icon.textContent = 'visibility_off';
+                }
+            };
+
+            // ── SHARE — use current page URL ──
+            const APP_URL = window.location.origin + window.location.pathname.replace(/\/?$/, '');
             function shareSong(song) {
                 closeAllModals();
                 const shareUrl = APP_URL + '?play=' + encodeURIComponent(song.id);
@@ -2916,8 +3823,548 @@ audioPlayer.addEventListener('ended', () => {
                 }
             }
 
-            // --- SLEEP TIMER ---
-            let sleepTimerTimeout = null;
+            // ═══════════════════════════════════════════════
+            // FRIENDS SYSTEM
+            // ═══════════════════════════════════════════════
+            window.showFriendsModal = function(tab) {
+                const modal = $('#friends-modal');
+                if (!modal) return;
+                showModal('#friends-modal');
+                switchFriendsTab(tab || 'friends');
+            };
+
+            function switchFriendsTab(tab) {
+                $$('#friends-tabs .toggle-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.friendsTab === tab);
+                });
+                renderFriendsTab(tab);
+            }
+
+            async function renderFriendsTab(tab) {
+                const container = $('#friends-list-container');
+                if (!container) return;
+                const title = $('#friends-modal-title');
+
+                if (tab === 'friends') {
+                    if (title) title.textContent = 'Friends';
+                    const friends = userData.friends || [];
+                    if (!friends.length) {
+                        container.innerHTML = '<p style="text-align:center;padding:30px;color:var(--text-secondary);">No friends yet. Find and add friends!</p>';
+                        return;
+                    }
+                    container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-secondary);">Loading...</p>';
+                    const items = await Promise.all(friends.map(async uid => {
+                        try {
+                            const snap = await getDoc(doc(db, 'users', uid));
+                            if (!snap.exists()) return null;
+                            const u = snap.data();
+                            const av = u.photoBase64 ? `<img src="${u.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : u.name.charAt(0).toUpperCase();
+                            return `<div class="friend-list-item">
+                                <div class="friend-avatar">${av}</div>
+                                <div class="friend-info">
+                                    <div class="friend-name">${u.name || 'User'}</div>
+                                    <div class="friend-sub">${u.bio || (u.isPremium ? '⭐ Premium' : 'Musico user')}</div>
+                                </div>
+                                <button class="friend-action-btn chat-btn" onclick="openChatWithUser('${uid}','${(u.name||'User').replace(/'/g,"\\'")}', '${u.photoBase64 ? 'photo' : ''}')">
+                                    <span class="material-icons" style="font-size:16px;vertical-align:middle;">chat</span>
+                                </button>
+                            </div>`;
+                        } catch(e) { return null; }
+                    }));
+                    container.innerHTML = items.filter(Boolean).join('') || '<p style="text-align:center;padding:20px;color:var(--text-secondary);">Could not load friends.</p>';
+
+                } else if (tab === 'followers') {
+                    if (title) title.textContent = 'Followers';
+                    const followers = userData.followers || [];
+                    if (!followers.length) {
+                        container.innerHTML = '<p style="text-align:center;padding:30px;color:var(--text-secondary);">No followers yet.</p>';
+                        return;
+                    }
+                    container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-secondary);">Loading...</p>';
+                    const items = await Promise.all(followers.map(async uid => {
+                        try {
+                            const snap = await getDoc(doc(db, 'users', uid));
+                            if (!snap.exists()) return null;
+                            const u = snap.data();
+                            const av = u.photoBase64 ? `<img src="${u.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : u.name.charAt(0).toUpperCase();
+                            const alreadyFriend = (userData.friends || []).includes(uid);
+                            return `<div class="friend-list-item">
+                                <div class="friend-avatar">${av}</div>
+                                <div class="friend-info">
+                                    <div class="friend-name">${u.name || 'User'}</div>
+                                    <div class="friend-sub">${u.bio || ''}</div>
+                                </div>
+                                ${!alreadyFriend ? `<button class="friend-action-btn add" onclick="addFriendBack('${uid}','${(u.name||'User').replace(/'/g,"\\'")}')">Add</button>` : '<span style="font-size:12px;color:var(--text-secondary);">Friend</span>'}
+                            </div>`;
+                        } catch(e) { return null; }
+                    }));
+                    container.innerHTML = items.filter(Boolean).join('') || '<p style="text-align:center;padding:20px;color:var(--text-secondary);">Could not load.</p>';
+
+                } else if (tab === 'requests') {
+                    if (title) title.textContent = 'Friend Requests';
+                    const requests = userData.friendRequests || [];
+                    if (!requests.length) {
+                        container.innerHTML = '<p style="text-align:center;padding:30px;color:var(--text-secondary);">No pending requests.</p>';
+                        return;
+                    }
+                    container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-secondary);">Loading...</p>';
+                    const items = await Promise.all(requests.map(async uid => {
+                        try {
+                            const snap = await getDoc(doc(db, 'users', uid));
+                            if (!snap.exists()) return null;
+                            const u = snap.data();
+                            const av = u.photoBase64 ? `<img src="${u.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : u.name.charAt(0).toUpperCase();
+                            return `<div class="friend-list-item" id="freq-${uid}">
+                                <div class="friend-avatar">${av}</div>
+                                <div class="friend-info">
+                                    <div class="friend-name">${u.name || 'User'}</div>
+                                    <div class="friend-sub">Wants to be your friend</div>
+                                </div>
+                                <div style="display:flex;gap:6px;">
+                                    <button class="friend-action-btn accept" onclick="acceptFriendRequest('${uid}','${(u.name||'User').replace(/'/g,"\\'")}')">Accept</button>
+                                    <button class="friend-action-btn reject" onclick="rejectFriendRequest('${uid}')">✕</button>
+                                </div>
+                            </div>`;
+                        } catch(e) { return null; }
+                    }));
+                    container.innerHTML = items.filter(Boolean).join('') || '<p style="text-align:center;padding:20px;color:var(--text-secondary);">Could not load.</p>';
+                }
+            }
+
+            window.acceptFriendRequest = async function(uid, name) {
+                try {
+                    const myRef = doc(db, 'users', currentUser.uid);
+                    const theirRef = doc(db, 'users', uid);
+                    await updateDoc(myRef, {
+                        friendRequests: arrayRemove(uid),
+                        friends: arrayUnion(uid),
+                        followers: arrayUnion(uid)
+                    });
+                    await updateDoc(theirRef, { friends: arrayUnion(currentUser.uid), followers: arrayUnion(currentUser.uid) });
+                    userData.friendRequests = (userData.friendRequests || []).filter(id => id !== uid);
+                    if (!userData.friends) userData.friends = [];
+                    userData.friends.push(uid);
+                    showToast('🎉 ' + name + ' added as friend!');
+                    renderFriendsTab('requests');
+                    renderProfilePage();
+                } catch(e) { showToast('Error: ' + e.message); }
+            };
+
+            window.rejectFriendRequest = async function(uid) {
+                try {
+                    await updateDoc(doc(db, 'users', currentUser.uid), { friendRequests: arrayRemove(uid) });
+                    userData.friendRequests = (userData.friendRequests || []).filter(id => id !== uid);
+                    showToast('Request declined');
+                    renderFriendsTab('requests');
+                    renderProfilePage();
+                } catch(e) { showToast('Error'); }
+            };
+
+            window.addFriendBack = async function(uid, name) {
+                await sendFriendRequest(uid, name);
+            };
+
+            async function sendFriendRequest(toUid, toName) {
+                if (!currentUser || currentUser.isAnonymous) { showToast('Login required'); return; }
+                if (toUid === currentUser.uid) { showToast("Can't add yourself!"); return; }
+                if ((userData.friends || []).includes(toUid)) { showToast('Already friends!'); return; }
+                try {
+                    await updateDoc(doc(db, 'users', toUid), { friendRequests: arrayUnion(currentUser.uid), followers: arrayUnion(currentUser.uid) });
+                    showToast('✅ Friend request sent to ' + toName + '!');
+                } catch(e) { showToast('Error: ' + e.message); }
+            }
+
+            // Find friends
+            async function searchUsers(query) {
+                const results = $('#find-friend-results');
+                if (!query.trim()) { results.innerHTML = ''; return; }
+                results.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-secondary);">Searching...</p>';
+                try {
+                    const snap = await getDocs(collection(db, 'users'));
+                    const lq = query.toLowerCase();
+                    const found = [];
+                    snap.forEach(docSnap => {
+                        const u = docSnap.data();
+                        const uid = docSnap.id;
+                        if (uid === currentUser.uid) return;
+                        const shortId = uid.substring(0, 8).toUpperCase();
+                        if ((u.name || '').toLowerCase().includes(lq) || shortId.toLowerCase().includes(lq)) {
+                            found.push({ uid, ...u, shortId });
+                        }
+                    });
+                    if (!found.length) { results.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-secondary);">No users found.</p>'; return; }
+                    const myFriends = userData.friends || [];
+                    const myRequests = userData.friendRequests || [];
+                    results.innerHTML = found.map(u => {
+                        const av = u.photoBase64 ? `<img src="${u.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (u.name||'?').charAt(0).toUpperCase();
+                        const isFriend = myFriends.includes(u.uid);
+                        const requestSent = myRequests.includes(u.uid);
+                        return `<div class="friend-list-item">
+                            <div class="friend-avatar">${av}</div>
+                            <div class="friend-info">
+                                <div class="friend-name">${u.name || 'User'}</div>
+                                <div class="friend-sub">ID: ${u.shortId} ${u.bio ? '· ' + u.bio : ''}</div>
+                            </div>
+                            ${isFriend ? '<span style="font-size:12px;color:var(--accent-primary);font-weight:600;">Friends ✓</span>'
+                                : `<button class="friend-action-btn add" onclick="sendFriendReqUI('${u.uid}','${(u.name||'User').replace(/'/g,"\\'")}',this)">${requestSent ? 'Requested' : 'Add'}</button>`}
+                        </div>`;
+                    }).join('');
+                } catch(e) { results.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Search failed.</p>'; }
+            }
+
+            window.sendFriendReqUI = async function(uid, name, btn) {
+                btn.disabled = true; btn.textContent = 'Sending...';
+                await sendFriendRequest(uid, name);
+                btn.textContent = 'Requested';
+            };
+            window.sendFriendRequest = sendFriendRequest;
+
+            // Profile ID share
+            function setupProfileActions() {
+                const shareIdBtn = $('#share-profile-id-btn');
+                if (shareIdBtn) {
+                    shareIdBtn.addEventListener('click', () => {
+                        if (!currentUser) return;
+                        const shortId = currentUser.uid.substring(0, 8).toUpperCase();
+                        const shareIdVal = $('#share-id-value');
+                        if (shareIdVal) shareIdVal.textContent = shortId;
+                        showModal('#share-id-modal');
+                    });
+                }
+                const copyIdBtn = $('#copy-id-btn');
+                if (copyIdBtn) {
+                    copyIdBtn.addEventListener('click', () => {
+                        const val = $('#share-id-value')?.textContent || '';
+                        navigator.clipboard.writeText(val).then(() => showToast('📋 ID copied!')).catch(() => showToast('Copy failed'));
+                    });
+                }
+                const shareIdActionBtn = $('#share-id-btn-action');
+                if (shareIdActionBtn) {
+                    shareIdActionBtn.addEventListener('click', () => {
+                        const val = $('#share-id-value')?.textContent || '';
+                        const url = APP_URL + '?addFriend=' + val;
+                        if (navigator.share) navigator.share({ title: 'Add me on Musico!', text: 'Find me on Musico with ID: ' + val, url }).catch(() => {});
+                        else navigator.clipboard.writeText(url).then(() => showToast('Link copied!'));
+                    });
+                }
+                const findFriendsBtn = $('#find-friends-btn');
+                if (findFriendsBtn) {
+                    findFriendsBtn.addEventListener('click', () => {
+                        if (currentUser && currentUser.isAnonymous) { showToast('Login required to find friends'); return; }
+                        showModal('#find-friends-modal');
+                        const inp = $('#find-friend-input');
+                        if (inp) { inp.value = ''; inp.focus(); }
+                        const res = $('#find-friend-results');
+                        if (res) res.innerHTML = '';
+                    });
+                }
+                const findBtn = $('#find-friend-search-btn');
+                if (findBtn) findBtn.addEventListener('click', () => searchUsers($('#find-friend-input')?.value || ''));
+                const findInp = $('#find-friend-input');
+                if (findInp) findInp.addEventListener('keydown', e => { if (e.key === 'Enter') searchUsers(e.target.value); });
+
+                // Friends tabs
+                $$('#friends-tabs .toggle-btn').forEach(btn => {
+                    btn.addEventListener('click', () => switchFriendsTab(btn.dataset.friendsTab));
+                });
+            }
+
+            // ═══════════════════════════════════════════════
+            // REAL-TIME CHAT SYSTEM
+            // ═══════════════════════════════════════════════
+            let _activeChatUid = null;
+            let _chatUnsubscribe = null;
+            let _chatFriendName = '';
+
+            function initChatPage() {
+                // Load conversations list from friends
+                renderChatConversations();
+
+                // Chat back button
+                const backBtn = $('#chat-back-btn');
+                if (backBtn) backBtn.addEventListener('click', () => {
+                    if (_chatUnsubscribe) { _chatUnsubscribe(); _chatUnsubscribe = null; }
+                    _activeChatUid = null;
+                    const listView = $('#chat-list-view');
+                    const roomView = $('#chat-room-view');
+                    if (listView) listView.style.display = 'block';
+                    if (roomView) roomView.style.display = 'none';
+                    renderChatConversations();
+                });
+
+                // Send button
+                const sendBtn = $('#chat-send-btn');
+                if (sendBtn) sendBtn.addEventListener('click', sendChatMessage);
+
+                const msgInput = $('#chat-message-input');
+                if (msgInput) {
+                    msgInput.addEventListener('keydown', e => {
+                        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+                    });
+                    msgInput.addEventListener('input', () => {
+                        msgInput.style.height = 'auto';
+                        msgInput.style.height = Math.min(msgInput.scrollHeight, 100) + 'px';
+                    });
+                }
+
+                // Share song in chat
+                const shareSongBtn = $('#chat-share-song-btn');
+                if (shareSongBtn) shareSongBtn.addEventListener('click', shareSongInChat);
+
+                // Friend search in chat list
+                const chatSearch = $('#chat-friend-search-input');
+                if (chatSearch) chatSearch.addEventListener('input', e => filterChatConversations(e.target.value));
+
+                // New chat button
+                const newChatBtn = $('#new-chat-btn');
+                if (newChatBtn) newChatBtn.addEventListener('click', () => {
+                    showModal('#find-friends-modal');
+                    const inp = $('#find-friend-input'); if (inp) inp.focus();
+                });
+            }
+
+            async function renderChatConversations() {
+                const container = $('#chat-conversations-list');
+                const emptyState = $('#chat-empty-state');
+                if (!container) return;
+                const friends = userData ? (userData.friends || []) : [];
+                if (!friends.length || !currentUser || currentUser.isAnonymous) {
+                    if (emptyState) emptyState.style.display = 'block';
+                    return;
+                }
+                if (emptyState) emptyState.style.display = 'none';
+                container.innerHTML = '<p style="color:var(--text-secondary);font-size:13px;padding:10px 0;">Loading chats...</p>';
+
+                const items = await Promise.all(friends.map(async uid => {
+                    try {
+                        const snap = await getDoc(doc(db, 'users', uid));
+                        if (!snap.exists()) return null;
+                        const u = snap.data();
+                        // Get last message
+                        const chatId = getChatId(currentUser.uid, uid);
+                        let lastMsg = ''; let lastTime = '';
+                        try {
+                            const msgsSnap = await getDocs(query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp','desc'), limit(1)));
+                            if (!msgsSnap.empty) {
+                                const lastDoc = msgsSnap.docs[0].data();
+                                lastMsg = lastDoc.type === 'song' ? '🎵 Shared a song' : (lastDoc.text || '');
+                                if (lastDoc.timestamp?.seconds) {
+                                    const d = new Date(lastDoc.timestamp.seconds * 1000);
+                                    const now = new Date();
+                                    lastTime = d.toDateString() === now.toDateString()
+                                        ? d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+                                        : d.toLocaleDateString([], {month:'short',day:'numeric'});
+                                }
+                            }
+                        } catch(e2) {}
+                        const av = u.photoBase64 ? `<img src="${u.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (u.name||'?').charAt(0).toUpperCase();
+                        return { uid, name: u.name, av, lastMsg, lastTime, photoBase64: u.photoBase64 };
+                    } catch(e) { return null; }
+                }));
+
+                const valid = items.filter(Boolean);
+                if (!valid.length) {
+                    container.innerHTML = '';
+                    if (emptyState) emptyState.style.display = 'block';
+                    return;
+                }
+                container.innerHTML = valid.map(f => `
+                    <div class="chat-conv-item" data-friend-uid="${f.uid}" data-friend-name="${(f.name||'User').replace(/"/g,'&quot;')}">
+                        <div class="chat-conv-avatar">${f.av}</div>
+                        <div class="chat-conv-info">
+                            <div class="chat-conv-name">${f.name || 'User'}</div>
+                            <div class="chat-conv-last">${f.lastMsg || 'Say hello! 👋'}</div>
+                        </div>
+                        <div class="chat-conv-time">${f.lastTime}</div>
+                    </div>`).join('');
+
+                container.querySelectorAll('.chat-conv-item').forEach(item => {
+                    item.addEventListener('click', () => openChatWithUser(item.dataset.friendUid, item.dataset.friendName, ''));
+                });
+            }
+
+            function filterChatConversations(q) {
+                const items = $$('.chat-conv-item');
+                items.forEach(item => {
+                    const name = (item.dataset.friendName || '').toLowerCase();
+                    item.style.display = q && !name.includes(q.toLowerCase()) ? 'none' : 'flex';
+                });
+            }
+
+            function getChatId(uid1, uid2) {
+                return [uid1, uid2].sort().join('_');
+            }
+
+            window.openChatWithUser = function(friendUid, friendName, photoHint) {
+                if (!currentUser || currentUser.isAnonymous) { showToast('Login required to chat'); return; }
+                _activeChatUid = friendUid;
+                _chatFriendName = friendName;
+                closeAllModals();
+
+                // Switch to chat page if not there
+                navigateTo('chat-page');
+
+                const listView = $('#chat-list-view');
+                const roomView = $('#chat-room-view');
+                if (listView) listView.style.display = 'none';
+                if (roomView) { roomView.style.display = 'flex'; }
+
+                const nameEl = $('#chat-room-name');
+                const statusEl = $('#chat-room-status');
+                const avatarEl = $('#chat-room-avatar');
+                if (nameEl) nameEl.textContent = friendName;
+                if (statusEl) statusEl.textContent = 'online';
+                if (avatarEl) avatarEl.textContent = (friendName || '?').charAt(0).toUpperCase();
+
+                // Subscribe to messages
+                if (_chatUnsubscribe) { _chatUnsubscribe(); _chatUnsubscribe = null; }
+                listenToChat(friendUid);
+            };
+
+            async function listenToChat(friendUid) {
+                const chatId = getChatId(currentUser.uid, friendUid);
+                const container = $('#chat-messages-container');
+                if (!container) return;
+                container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">Loading messages...</p>';
+
+                try {
+                    const msgsRef = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'asc'), limit(100));
+                    _chatUnsubscribe = onSnapshot(msgsRef, snap => {
+                        renderChatMessages(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+                    });
+                } catch(e) {
+                    container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">Could not load messages.</p>';
+                }
+            }
+
+            function renderChatMessages(messages) {
+                const container = $('#chat-messages-container');
+                if (!container) return;
+                if (!messages.length) {
+                    container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-secondary);">
+                        <span class="material-icons" style="font-size:48px;opacity:.3;display:block;margin-bottom:12px;">chat_bubble_outline</span>
+                        <p style="font-size:14px;">Start chatting with ${_chatFriendName}!</p>
+                    </div>`;
+                    return;
+                }
+                let lastDate = '';
+                container.innerHTML = messages.map(msg => {
+                    const isSent = msg.senderId === currentUser.uid;
+                    const side = isSent ? 'sent' : 'received';
+                    let dateDiv = '';
+                    if (msg.timestamp?.seconds) {
+                        const d = new Date(msg.timestamp.seconds * 1000);
+                        const label = d.toLocaleDateString('en-IN', {weekday:'short', month:'short', day:'numeric'});
+                        if (label !== lastDate) { lastDate = label; dateDiv = `<div class="chat-date-divider">${label}</div>`; }
+                    }
+                    const timeStr = msg.timestamp?.seconds
+                        ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+
+                    let bubbleContent = '';
+                    if (msg.type === 'song' && msg.song) {
+                        const s = msg.song;
+                        bubbleContent = `<div class="chat-song-card" data-song-id="${s.id}">
+                            <img src="${s.img || 'https://placehold.co/40x40/1E1E1E/fff?text=M'}" onerror="this.src='https://placehold.co/40x40/1E1E1E/fff?text=M'">
+                            <div class="chat-song-card-info">
+                                <div class="chat-song-card-title">${s.title}</div>
+                                <div class="chat-song-card-artist">${s.artist || ''}</div>
+                            </div>
+                            <span class="material-icons" style="color:var(--accent-primary);font-size:20px;">play_circle</span>
+                        </div>`;
+                    } else {
+                        bubbleContent = `${msg.text || ''}`;
+                    }
+
+                    return `${dateDiv}<div class="chat-msg-wrap ${side}">
+                        <div class="chat-bubble">${bubbleContent}<div class="chat-msg-time">${timeStr}</div></div>
+                    </div>`;
+                }).join('');
+
+                // Scroll to bottom
+                container.scrollTop = container.scrollHeight;
+
+                // Song card click
+                container.querySelectorAll('.chat-song-card[data-song-id]').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const song = getSongById(card.dataset.songId);
+                        if (song) playSongs([song.id], 0);
+                    });
+                });
+            }
+
+            async function sendChatMessage() {
+                const input = $('#chat-message-input');
+                if (!input || !_activeChatUid) return;
+                const text = input.value.trim();
+                if (!text) return;
+                input.value = ''; input.style.height = 'auto';
+
+                const chatId = getChatId(currentUser.uid, _activeChatUid);
+                try {
+                    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+                        text, senderId: currentUser.uid,
+                        senderName: userData.name || 'User',
+                        timestamp: Timestamp.now(), type: 'text'
+                    });
+                } catch(e) { showToast('Send failed: ' + e.message); input.value = text; }
+            }
+
+            async function shareSongInChat() {
+                if (!_activeChatUid || currentIndex < 0 || !currentQueue[currentIndex]) {
+                    showToast('Play a song first to share it!'); return;
+                }
+                const song = currentQueue[currentIndex];
+                const chatId = getChatId(currentUser.uid, _activeChatUid);
+                try {
+                    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+                        senderId: currentUser.uid,
+                        senderName: userData.name || 'User',
+                        timestamp: Timestamp.now(),
+                        type: 'song',
+                        song: { id: song.id, title: song.title, artist: song.artist, img: song.img || null }
+                    });
+                    showToast('🎵 Song shared in chat!');
+                } catch(e) { showToast('Share failed: ' + e.message); }
+            }
+
+            // ── SHARE PLAYLIST — generate shareable URL ──
+            function sharePlaylist(playlistName) {
+                closeAllModals();
+                const pl = (userData.playlists || []).find(p => p.name === playlistName);
+                if (!pl) { showToast('Playlist not found.'); return; }
+                // Encode playlist: name + song ids
+                const plData = btoa(encodeURIComponent(JSON.stringify({ n: pl.name, s: pl.songs })));
+                const shareUrl = APP_URL + '?playlist=' + plData;
+                if (navigator.share) {
+                    navigator.share({
+                        title: pl.name + ' — Musico Playlist',
+                        text: '🎵 Check out my playlist "' + pl.name + '" on Musico!',
+                        url: shareUrl
+                    }).catch(() => {
+                        navigator.clipboard.writeText(shareUrl).then(() => showToast('Playlist link copied!')).catch(() => {});
+                    });
+                } else {
+                    navigator.clipboard.writeText(shareUrl).then(() => showToast('📋 Playlist link copied!')).catch(() => showToast('Sharing not supported.'));
+                }
+            }
+
+            // ── HANDLE ?playlist= URL param on load ──
+            function handlePlaylistUrlParam() {
+                const params = new URLSearchParams(window.location.search);
+                const plParam = params.get('playlist');
+                if (!plParam) return;
+                try {
+                    const parsed = JSON.parse(decodeURIComponent(atob(plParam)));
+                    if (!parsed.n || !parsed.s || !parsed.s.length) return;
+                    // Show as community playlist view after songs loaded
+                    const tryOpen = () => {
+                        if (!allSongs.length) { setTimeout(tryOpen, 500); return; }
+                        showListView('community', null, { name: parsed.n, songs: parsed.s, ownerName: 'Shared' });
+                        showToast('🎵 Playlist "' + parsed.n + '" loaded!');
+                    };
+                    tryOpen();
+                } catch(e) { console.warn('Invalid playlist URL param'); }
+            }
             let sleepTimerInterval = null;
 
             function startSleepTimer(minutes) {
@@ -3160,6 +4607,8 @@ audioPlayer.addEventListener('ended', () => {
             document.body.addEventListener('click', e => {
                 const editBtn = e.target.closest('.playlist-edit-btn');
                 if (editBtn) { e.stopPropagation(); openPlaylistEditModal(editBtn.dataset.playlistName); }
+                const sharePlBtn = e.target.closest('.pl-share-btn[data-share-playlist]');
+                if (sharePlBtn) { e.stopPropagation(); sharePlaylist(sharePlBtn.dataset.sharePlaylist); }
             });
 
             // Home playlist card click → open playlist detail
