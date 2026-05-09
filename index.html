@@ -239,11 +239,8 @@
             width: 38px; height: 38px; border-radius: 50%;
             background: white; display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; cursor: pointer; border: none;
-        }
-        #mini-player-play-btn .material-icons {
-            font-size: 22px !important; color: #000 !important;
-            font-family: 'Material Icons' !important;
-            line-height: 1 !important; padding: 0 !important;
+            font-size: 18px; color: #000; line-height: 1;
+            font-family: inherit;
         }
         #mini-player-controls .like-btn.liked { color: var(--accent-primary); }
 
@@ -383,10 +380,9 @@
             transition: transform 0.15s, box-shadow 0.15s;
             padding: 0; border: none;
         }
-        #full-player-controls .play-pause-btn .material-icons {
-            font-size: 36px !important; color: #000 !important;
-            font-family: 'Material Icons' !important;
-            line-height: 1 !important; padding: 0 !important;
+        #full-player-controls .play-pause-btn {
+            font-size: 32px !important; color: #000 !important;
+            font-family: inherit !important; line-height: 1 !important;
         }
         #full-player-controls .play-pause-btn:active { transform: scale(0.93); }
 
@@ -932,10 +928,7 @@
             </div>
             <div id="mini-player-controls">
                 <span id="mini-prev-btn" class="material-icons">skip_previous</span>
-                <button id="mini-player-play-btn" aria-label="Play">
-                    <svg id="mp-play-icon" viewBox="0 0 24 24" fill="#000" width="20" height="20"><path d="M8 5v14l11-7z"/></svg>
-                    <svg id="mp-pause-icon" viewBox="0 0 24 24" fill="#000" width="20" height="20" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                </button>
+                <button id="mini-player-play-btn" aria-label="Play" style="width:40px;height:40px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.3);"><span style="display:inline-block;width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #000;margin-left:3px;"></span></button>
                 <span id="mini-next-btn" class="material-icons">skip_next</span>
             </div>
             <div id="mini-player-progress"><div id="mini-player-progress-fill"></div></div>
@@ -1001,10 +994,7 @@
                 <div id="full-player-controls">
                     <span id="shuffle-btn" class="material-icons">shuffle</span>
                     <span id="prev-btn" class="material-icons">skip_previous</span>
-                    <button id="full-player-play-btn" class="play-pause-btn" aria-label="Play">
-                        <svg id="fp-play-icon" viewBox="0 0 24 24" fill="#000" width="36" height="36"><path d="M8 5v14l11-7z"/></svg>
-                        <svg id="fp-pause-icon" viewBox="0 0 24 24" fill="#000" width="36" height="36" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                    </button>
+                    <button id="full-player-play-btn" class="play-pause-btn" aria-label="Play" style="width:68px;height:68px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 24px rgba(255,255,255,0.2);transition:transform 0.15s;"><span style="display:inline-block;width:0;height:0;border-top:13px solid transparent;border-bottom:13px solid transparent;border-left:22px solid #000;margin-left:5px;"></span></button>
                     <span id="next-btn" class="material-icons">skip_next</span>
                     <span id="repeat-btn" class="material-icons">repeat</span>
                 </div>
@@ -1677,17 +1667,14 @@
                 updateMediaSession(song);
             }
 
+            // Pure CSS shapes - no font dependency
+            const PLAY_ICON = '<span style="display:inline-block;width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:19px solid #000;margin-left:5px;vertical-align:middle;"></span>';
+            const PAUSE_ICON = '<span style="display:inline-flex;gap:5px;align-items:center;vertical-align:middle;"><span style="display:inline-block;width:5px;height:20px;background:#000;border-radius:2px;"></span><span style="display:inline-block;width:5px;height:20px;background:#000;border-radius:2px;"></span></span>';
             function updatePlayIcons(playing) {
-                // Full player SVG icons
-                const fpPlay = document.getElementById('fp-play-icon');
-                const fpPause = document.getElementById('fp-pause-icon');
-                if (fpPlay) fpPlay.style.display = playing ? 'none' : 'block';
-                if (fpPause) fpPause.style.display = playing ? 'block' : 'none';
-                // Mini player SVG icons
-                const mpPlay = document.getElementById('mp-play-icon');
-                const mpPause = document.getElementById('mp-pause-icon');
-                if (mpPlay) mpPlay.style.display = playing ? 'none' : 'block';
-                if (mpPause) mpPause.style.display = playing ? 'block' : 'none';
+                const fp = document.getElementById('full-player-play-btn');
+                const mp = document.getElementById('mini-player-play-btn');
+                if (fp) fp.innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
+                if (mp) mp.innerHTML = playing ? PAUSE_ICON : PLAY_ICON;
             }
 
             async function togglePlayPause(forcePlay = null) {
@@ -2914,17 +2901,18 @@ audioPlayer.addEventListener('ended', () => {
             function shareSong(song) {
                 closeAllModals();
                 const shareUrl = APP_URL + '?play=' + encodeURIComponent(song.id);
-                const shareText = '\uD83C\uDFB5 ' + song.title + ' | ' + (song.artist || '') + ' | Listen on Musico: ' + shareUrl;
+                // text me URL mat daalo — navigator.share khud url field append karta hai
+                const shareText = '\uD83C\uDFB5 ' + song.title + (song.artist ? ' \u2014 ' + song.artist : '');
                 if (navigator.share) {
                     navigator.share({
-                        title: song.title + ' — Musico',
+                        title: song.title + ' \u2014 Musico',
                         text: shareText,
                         url: shareUrl
                     }).catch(() => {
-                        navigator.clipboard.writeText(shareText).then(() => showToast('Link copied!')).catch(() => {});
+                        navigator.clipboard.writeText(shareUrl).then(() => showToast('Link copied!')).catch(() => {});
                     });
                 } else {
-                    navigator.clipboard.writeText(shareText).then(() => showToast('Link copied to clipboard!')).catch(() => showToast('Share not supported.'));
+                    navigator.clipboard.writeText(shareUrl).then(() => showToast('Link copied!')).catch(() => showToast('Share not supported.'));
                 }
             }
 
