@@ -715,6 +715,101 @@
         /* Playlist view hero tweaks */
         #playlist-view-hero { display:flex;gap:16px;align-items:flex-start;padding:0 0 20px;margin-bottom:4px; }
 
+        /* ═══ CHAT FULLSCREEN MODE ═══ */
+        /* When chat room is open — hide app header + bottom nav, show full height */
+        body.chat-room-open #app-header { display: none !important; }
+        body.chat-room-open #bottom-nav { display: none !important; }
+        body.chat-room-open #mini-player { bottom: 0px; border-radius: 0; left: 0; right: 0; }
+        body.chat-room-open #app-content { padding-bottom: 0 !important; }
+        /* Chat room fills entire viewport */
+        body.chat-room-open #chat-page { height: 100vh; height: 100dvh; }
+        body.chat-room-open #chat-room-view {
+            height: 100vh; height: 100dvh;
+            padding: 0 20px;
+        }
+        /* Input bar sticks to bottom above nothing */
+        body.chat-room-open #chat-input-bar {
+            bottom: 0; padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
+        /* Smooth transition for these toggles */
+        #app-header { transition: opacity 0.2s; }
+        #bottom-nav { transition: opacity 0.2s; }
+
+        /* Unread badge on chat conversations */
+        .chat-unread-dot {
+            width: 9px; height: 9px; border-radius: 50%;
+            background: var(--accent-primary); flex-shrink: 0;
+        }
+        .chat-conv-item.has-unread .chat-conv-last { font-weight: 700; color: var(--text-primary); }
+        .chat-conv-item.has-unread .chat-conv-name { font-weight: 800; }
+        .chat-unread-count {
+            background: var(--accent-primary); color: white;
+            border-radius: 10px; padding: 2px 7px;
+            font-size: 11px; font-weight: 700; flex-shrink: 0;
+            min-width: 20px; text-align: center;
+        }
+        /* First unread message divider */
+        .chat-unread-divider {
+            text-align: center; font-size: 11px; color: var(--accent-primary);
+            font-weight: 700; padding: 8px 0; letter-spacing: .3px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .chat-unread-divider::before, .chat-unread-divider::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+        }
+        /* ─── END CHAT CSS ─── */
+        :root {
+            --dyn-primary: #8A4FFF;
+            --dyn-secondary: #5899FF;
+            --dyn-bg: #1a1a2e;
+        }
+        #mini-player { transition: background 1.2s cubic-bezier(0.4,0,0.2,1); }
+        #mini-player.dyn-colored {
+            background: linear-gradient(135deg, var(--dyn-primary), var(--dyn-bg)) !important;
+        }
+        #fp-bg-overlay.dyn-overlay {
+            background: linear-gradient(
+                to bottom,
+                color-mix(in srgb, var(--dyn-primary) 40%, transparent) 0%,
+                rgba(0,0,0,0.55) 40%,
+                rgba(0,0,0,0.92) 100%
+            ) !important;
+            transition: background 1.2s ease;
+        }
+        @keyframes colorPulse {
+            0% { box-shadow: 0 0 0 0 var(--dyn-primary); }
+            50% { box-shadow: 0 0 30px 8px var(--dyn-primary); }
+            100% { box-shadow: 0 0 0 0 var(--dyn-primary); }
+        }
+        .dyn-artwork-pulse { animation: colorPulse 0.8s ease; }
+        #fp-progress-fill { transition: background 1.2s ease; }
+        #mini-player-progress-fill { transition: background 1.2s ease; }
+
+        /* ═══ COLLABORATIVE PLAYLISTS ═══ */
+        #collab-page { padding: 0; }
+        .collab-song-item {
+            display:flex; align-items:center; gap:12px;
+            padding:11px 0; border-bottom:1px solid var(--border-color);
+            transition: background 0.2s; animation: fadeInUp .25s ease;
+        }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        .collab-song-thumb { width:46px;height:46px;border-radius:8px;object-fit:cover;flex-shrink:0; }
+        .collab-song-info { flex:1;min-width:0; }
+        .collab-song-title { font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+        .collab-song-meta { font-size:12px;color:var(--text-secondary);margin-top:2px; }
+        .collab-added-by { font-size:10px;color:var(--accent-primary);font-weight:600;margin-top:1px; }
+        .collab-remove-btn { background:none;border:none;cursor:pointer;color:#FF5252;padding:6px;display:flex;align-items:center;flex-shrink:0;border-radius:50%; }
+        .collab-add-result-item { display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-color);cursor:pointer; }
+        .collab-add-result-item img { width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0; }
+        .collab-add-result-info { flex:1;min-width:0; }
+        .collab-add-result-info p { margin:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+        .collab-add-result-info span { font-size:12px;color:var(--text-secondary); }
+        .collab-add-btn { background:var(--accent-primary);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;color:white;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        .collab-friend-invite-item { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-color); }
+        .collab-friend-av { width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:15px;overflow:hidden;flex-shrink:0; }
+        .collab-badge { display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:.3px; }
+
         /* --- END NEW CSS --- */
         /* Forgot password & guest links in auth */
         #home-search-wrapper {
@@ -1089,6 +1184,16 @@
                 <div id="home-public-playlists-section" class="hidden">
                     <h2 class="section-title">Community Playlists 🌐</h2>
                     <div class="carousel-container"><div class="carousel" id="home-public-playlists-carousel"></div></div>
+                </div>
+                <!-- COLLABORATIVE PLAYLISTS SECTION -->
+                <div id="home-collab-section" class="hidden">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-top:4px;">
+                        <h2 class="section-title" style="margin:0;padding:0;">👥 Collaborative</h2>
+                        <button id="new-collab-playlist-btn" style="background:none;border:none;color:var(--accent-primary);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">
+                            <span class="material-icons" style="font-size:18px;">add_circle</span>New
+                        </button>
+                    </div>
+                    <div id="home-collab-list"></div>
                 </div>
             </div>
  <div id="admin-playlists-section" class="hidden">
@@ -1573,6 +1678,59 @@
         </div>
     </div>
 
+    <!-- GUEST PREVIEW BOTTOM SHEET -->
+    <div id="guest-preview-sheet" style="
+        display:none; position:fixed; inset:0; z-index:9500;
+        background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);
+        align-items:flex-end; justify-content:center;
+    ">
+        <div id="guest-preview-card" style="
+            background:var(--bg-secondary); width:100%; max-width:500px;
+            border-radius:24px 24px 0 0; padding:0 20px 34px;
+            transform:translateY(100%); transition:transform 0.38s cubic-bezier(0.32,0.72,0,1);
+            box-shadow:0 -8px 40px rgba(0,0,0,0.4);
+        ">
+            <!-- Pill handle -->
+            <div style="width:40px;height:4px;background:var(--border-color);border-radius:2px;margin:12px auto 20px;"></div>
+            <!-- Preview content -->
+            <div id="guest-preview-content" style="display:flex;gap:14px;align-items:center;margin-bottom:20px;">
+                <div id="guest-preview-thumb" style="
+                    width:64px;height:64px;border-radius:14px;flex-shrink:0;overflow:hidden;
+                    background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+                    display:flex;align-items:center;justify-content:center;
+                ">
+                    <span class="material-icons" style="color:white;font-size:28px;">music_note</span>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div id="guest-preview-type" style="font-size:11px;color:var(--accent-primary);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;"></div>
+                    <div id="guest-preview-title" style="font-size:17px;font-weight:800;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+                    <div id="guest-preview-sub" style="font-size:13px;color:var(--text-secondary);margin-top:3px;"></div>
+                </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-bottom:18px;line-height:1.5;">
+                🎵 Login or Sign up to enjoy this on <strong>Musico</strong> — playlists, chat & more!
+            </p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <button id="guest-preview-login-btn" style="
+                    padding:14px;border:none;border-radius:14px;
+                    background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+                    color:white;font-size:15px;font-weight:700;cursor:pointer;
+                    display:flex;align-items:center;justify-content:center;gap:8px;
+                ">
+                    <span class="material-icons" style="font-size:18px;">login</span>
+                    Login / Sign Up
+                </button>
+                <button id="guest-preview-later-btn" style="
+                    padding:13px;border:1.5px solid var(--border-color);border-radius:14px;
+                    background:transparent;color:var(--text-secondary);font-size:14px;
+                    font-weight:600;cursor:pointer;
+                ">
+                    Maybe Later
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- SUGGEST SONG MODAL -->
     <div id="suggest-song-modal" class="modal-overlay">
         <div class="modal-content">
@@ -1743,9 +1901,13 @@
                         currentUser = null;
                         userData = null;
                         handleUserLoggedOut();
+                        // ✅ Check if user came via shared link — show preview
+                        setTimeout(() => checkSharedUrlForGuest(), 800);
                     }
                 });
                 
+                // ✅ Init guest preview sheet (works even before login)
+                initGuestPreviewSheet();
                 setupEventListeners();
             }
 
@@ -1767,8 +1929,11 @@
                 updateClaimButton();
                 await loadDownloadedSongsFromDB();
                 handlePlaylistUrlParam();
+                handleCollabUrlParam();
                 setupProfileActions();
                 initChatPage();
+                initCollabPage();
+                renderHomeCollabPlaylists();
             }
 
             // ── PUSH NOTIFICATIONS (Web Push via Service Worker) ──
@@ -1983,12 +2148,15 @@
                 if (target) target.classList.add('active');
                 navItems.forEach(item => item.classList.toggle('active', item.dataset.page === pageId));
                 $('#app-content').scrollTop = 0;
+                // ✅ Remove chat fullscreen when leaving chat
+                if (pageId !== 'chat-page') document.body.classList.remove('chat-room-open');
                 // Chat page layout fix
                 if (pageId === 'chat-page') {
                     const chatListView = $('#chat-list-view');
                     const chatRoomView = $('#chat-room-view');
                     if (chatListView) chatListView.style.display = 'block';
                     if (chatRoomView) chatRoomView.style.display = 'none';
+                    document.body.classList.remove('chat-room-open'); // list view = no fullscreen
                 }
             }
             function navigateBack() {
@@ -2203,6 +2371,8 @@
                 // Update blurred background
                 const fpBgBlur = document.getElementById('fp-bg-blur');
                 if (fpBgBlur) fpBgBlur.style.backgroundImage = 'url(' + artSrc + ')';
+                // ✨ Dynamic color from album art
+                applyDynamicColor(artSrc);
                 $('#mini-player-title').textContent = song.title;
                 $('#mini-player-artist').textContent = song.artist;
                 $('#mini-player-artwork').src = song.img || 'https://placehold.co/50x50/282828/fff?text=M';
@@ -4075,6 +4245,10 @@ audioPlayer.addEventListener('ended', () => {
             let _activeChatUid = null;
             let _chatUnsubscribe = null;
             let _chatFriendName = '';
+            // ✅ Track last-read timestamp per chat (persisted in localStorage)
+            let _chatLastReadTime = (() => {
+                try { return JSON.parse(localStorage.getItem('chatLastRead') || '{}'); } catch(e) { return {}; }
+            })();
 
             function initChatPage() {
                 // Load conversations list from friends
@@ -4085,6 +4259,8 @@ audioPlayer.addEventListener('ended', () => {
                 if (backBtn) backBtn.addEventListener('click', () => {
                     if (_chatUnsubscribe) { _chatUnsubscribe(); _chatUnsubscribe = null; }
                     _activeChatUid = null;
+                    // ✅ Remove fullscreen mode
+                    document.body.classList.remove('chat-room-open');
                     const listView = $('#chat-list-view');
                     const roomView = $('#chat-room-view');
                     if (listView) listView.style.display = 'block';
@@ -4140,14 +4316,14 @@ audioPlayer.addEventListener('ended', () => {
                         const snap = await getDoc(doc(db, 'users', uid));
                         if (!snap.exists()) return null;
                         const u = snap.data();
-                        // Get last message
                         const chatId = getChatId(currentUser.uid, uid);
-                        let lastMsg = ''; let lastTime = '';
+                        let lastMsg = ''; let lastTime = ''; let lastMsgTs = 0; let unreadCount = 0;
                         try {
-                            const msgsSnap = await getDocs(query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp','desc'), limit(1)));
+                            const msgsSnap = await getDocs(query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp','desc'), limit(30)));
                             if (!msgsSnap.empty) {
                                 const lastDoc = msgsSnap.docs[0].data();
                                 lastMsg = lastDoc.type === 'song' ? '🎵 Shared a song' : (lastDoc.text || '');
+                                lastMsgTs = lastDoc.timestamp?.seconds || 0;
                                 if (lastDoc.timestamp?.seconds) {
                                     const d = new Date(lastDoc.timestamp.seconds * 1000);
                                     const now = new Date();
@@ -4155,31 +4331,61 @@ audioPlayer.addEventListener('ended', () => {
                                         ? d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
                                         : d.toLocaleDateString([], {month:'short',day:'numeric'});
                                 }
+                                // ✅ Count unread
+                                const lastRead = (_chatLastReadTime[uid] || 0);
+                                msgsSnap.forEach(d => {
+                                    const m = d.data();
+                                    if (m.senderId !== currentUser.uid && (m.timestamp?.seconds||0)*1000 > lastRead) unreadCount++;
+                                });
                             }
                         } catch(e2) {}
                         const av = u.photoBase64 ? `<img src="${u.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (u.name||'?').charAt(0).toUpperCase();
-                        return { uid, name: u.name, av, lastMsg, lastTime, photoBase64: u.photoBase64 };
+                        return { uid, name: u.name, av, lastMsg, lastTime, lastMsgTs, unreadCount, photoBase64: u.photoBase64 };
                     } catch(e) { return null; }
                 }));
 
                 const valid = items.filter(Boolean);
+                // ✅ Sort: unread first, then by latest message
+                valid.sort((a, b) => {
+                    if (b.unreadCount !== a.unreadCount) return b.unreadCount - a.unreadCount;
+                    return b.lastMsgTs - a.lastMsgTs;
+                });
                 if (!valid.length) {
                     container.innerHTML = '';
                     if (emptyState) emptyState.style.display = 'block';
                     return;
                 }
-                container.innerHTML = valid.map(f => `
-                    <div class="chat-conv-item" data-friend-uid="${f.uid}" data-friend-name="${(f.name||'User').replace(/"/g,'&quot;')}">
-                        <div class="chat-conv-avatar">${f.av}</div>
+                container.innerHTML = valid.map(f => {
+                    const unread = f.unreadCount || 0;
+                    const hasUnread = unread > 0;
+                    return `
+                    <div class="chat-conv-item ${hasUnread ? 'has-unread' : ''}" 
+                         data-friend-uid="${f.uid}" 
+                         data-friend-name="${(f.name||'User').replace(/"/g,'&quot;')}"
+                         data-friend-photo="${f.photoBase64 ? 'photo' : ''}">
+                        <div class="chat-conv-avatar" style="position:relative;">
+                            ${f.av}
+                            ${hasUnread ? '<div class="chat-unread-dot" style="position:absolute;bottom:1px;right:1px;"></div>' : ''}
+                        </div>
                         <div class="chat-conv-info">
                             <div class="chat-conv-name">${f.name || 'User'}</div>
                             <div class="chat-conv-last">${f.lastMsg || 'Say hello! 👋'}</div>
                         </div>
-                        <div class="chat-conv-time">${f.lastTime}</div>
-                    </div>`).join('');
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+                            <div class="chat-conv-time">${f.lastTime}</div>
+                            ${hasUnread ? `<span class="chat-unread-count">${unread > 99 ? '99+' : unread}</span>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
 
                 container.querySelectorAll('.chat-conv-item').forEach(item => {
-                    item.addEventListener('click', () => openChatWithUser(item.dataset.friendUid, item.dataset.friendName, ''));
+                    item.addEventListener('click', () => {
+                        const friendUid = item.dataset.friendUid;
+                        const friendName = item.dataset.friendName;
+                        const photoEl = item.querySelector('.chat-conv-avatar img');
+                        const photo = photoEl ? photoEl.src : '';
+                        openChatWithUser(friendUid, friendName, photo);
+                    });
                 });
             }
 
@@ -4195,26 +4401,41 @@ audioPlayer.addEventListener('ended', () => {
                 return [uid1, uid2].sort().join('_');
             }
 
-            window.openChatWithUser = function(friendUid, friendName, photoHint) {
+            window.openChatWithUser = function(friendUid, friendName, friendPhoto) {
                 if (!currentUser || currentUser.isAnonymous) { showToast('Login required to chat'); return; }
                 _activeChatUid = friendUid;
                 _chatFriendName = friendName;
                 closeAllModals();
 
-                // Switch to chat page if not there
+                // Switch to chat page
                 navigateTo('chat-page');
 
                 const listView = $('#chat-list-view');
                 const roomView = $('#chat-room-view');
                 if (listView) listView.style.display = 'none';
-                if (roomView) { roomView.style.display = 'flex'; }
+                if (roomView) roomView.style.display = 'flex';
+
+                // ✅ FULLSCREEN: hide header + bottom nav
+                document.body.classList.add('chat-room-open');
 
                 const nameEl = $('#chat-room-name');
                 const statusEl = $('#chat-room-status');
                 const avatarEl = $('#chat-room-avatar');
                 if (nameEl) nameEl.textContent = friendName;
-                if (statusEl) statusEl.textContent = 'online';
-                if (avatarEl) avatarEl.textContent = (friendName || '?').charAt(0).toUpperCase();
+                if (statusEl) statusEl.textContent = '● online';
+
+                // Avatar — photo or initial
+                if (avatarEl) {
+                    if (friendPhoto && friendPhoto !== 'photo') {
+                        avatarEl.innerHTML = `<img src="${friendPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    } else {
+                        avatarEl.textContent = (friendName || '?').charAt(0).toUpperCase();
+                    }
+                }
+
+                // Mark messages as read
+                _chatLastReadTime[friendUid] = Date.now();
+                try { localStorage.setItem('chatLastRead', JSON.stringify(_chatLastReadTime)); } catch(e){}
 
                 // Subscribe to messages
                 if (_chatUnsubscribe) { _chatUnsubscribe(); _chatUnsubscribe = null; }
@@ -4247,8 +4468,19 @@ audioPlayer.addEventListener('ended', () => {
                     </div>`;
                     return;
                 }
+
+                // ✅ Find first unread message
+                const lastRead = _chatLastReadTime[_activeChatUid] || 0;
+                let firstUnreadIdx = -1;
+                messages.forEach((msg, i) => {
+                    if (firstUnreadIdx === -1 && msg.senderId !== currentUser.uid) {
+                        const msgTime = (msg.timestamp?.seconds || 0) * 1000;
+                        if (msgTime > lastRead) firstUnreadIdx = i;
+                    }
+                });
+
                 let lastDate = '';
-                container.innerHTML = messages.map(msg => {
+                const html = messages.map((msg, i) => {
                     const isSent = msg.senderId === currentUser.uid;
                     const side = isSent ? 'sent' : 'received';
                     let dateDiv = '';
@@ -4259,6 +4491,10 @@ audioPlayer.addEventListener('ended', () => {
                     }
                     const timeStr = msg.timestamp?.seconds
                         ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+
+                    // ✅ Unread divider before first unread
+                    const unreadDivider = (i === firstUnreadIdx && firstUnreadIdx > 0)
+                        ? `<div class="chat-unread-divider" id="first-unread-msg">New Messages</div>` : '';
 
                     let bubbleContent = '';
                     if (msg.type === 'song' && msg.song) {
@@ -4275,13 +4511,22 @@ audioPlayer.addEventListener('ended', () => {
                         bubbleContent = `${msg.text || ''}`;
                     }
 
-                    return `${dateDiv}<div class="chat-msg-wrap ${side}">
+                    return `${dateDiv}${unreadDivider}<div class="chat-msg-wrap ${side}">
                         <div class="chat-bubble">${bubbleContent}<div class="chat-msg-time">${timeStr}</div></div>
                     </div>`;
                 }).join('');
 
-                // Scroll to bottom
-                container.scrollTop = container.scrollHeight;
+                container.innerHTML = html;
+
+                // ✅ Scroll to first unread, else scroll to bottom
+                if (firstUnreadIdx > 0) {
+                    const unreadEl = container.querySelector('#first-unread-msg');
+                    if (unreadEl) {
+                        setTimeout(() => unreadEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+                    }
+                } else {
+                    container.scrollTop = container.scrollHeight;
+                }
 
                 // Song card click
                 container.querySelectorAll('.chat-song-card[data-song-id]').forEach(card => {
@@ -4290,6 +4535,24 @@ audioPlayer.addEventListener('ended', () => {
                         if (song) playSongs([song.id], 0);
                     });
                 });
+            }
+
+            // ✅ Also upgrade conversations list with unread count
+            async function getUnreadCount(friendUid) {
+                const lastRead = _chatLastReadTime[friendUid] || 0;
+                try {
+                    const chatId = getChatId(currentUser.uid, friendUid);
+                    const snap = await getDocs(query(
+                        collection(db, 'chats', chatId, 'messages'),
+                        orderBy('timestamp', 'desc'), limit(50)
+                    ));
+                    let count = 0;
+                    snap.forEach(d => {
+                        const m = d.data();
+                        if (m.senderId !== currentUser.uid && (m.timestamp?.seconds||0)*1000 > lastRead) count++;
+                    });
+                    return count;
+                } catch(e) { return 0; }
             }
 
             async function sendChatMessage() {
@@ -4348,6 +4611,109 @@ audioPlayer.addEventListener('ended', () => {
                 }
             }
 
+            // ═══════════════════════════════════════════════════════
+            // GUEST PREVIEW SHEET — shared links bina login ke
+            // ═══════════════════════════════════════════════════════
+            function initGuestPreviewSheet() {
+                const sheet = $('#guest-preview-sheet');
+                const card = $('#guest-preview-card');
+                const loginBtn = $('#guest-preview-login-btn');
+                const laterBtn = $('#guest-preview-later-btn');
+                if (!sheet) return;
+
+                // Animate in
+                function openSheet() {
+                    sheet.style.display = 'flex';
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        card.style.transform = 'translateY(0)';
+                    }));
+                }
+                function closeSheet() {
+                    card.style.transform = 'translateY(100%)';
+                    setTimeout(() => { sheet.style.display = 'none'; }, 380);
+                }
+
+                if (loginBtn) loginBtn.addEventListener('click', () => {
+                    closeSheet();
+                    // Show auth screen
+                    const authScreen = $('#auth-screen');
+                    const mainApp = $('#main-app');
+                    if (authScreen) { authScreen.style.display = 'flex'; authScreen.style.opacity = 1; }
+                    if (mainApp) mainApp.style.display = 'none';
+                });
+                if (laterBtn) laterBtn.addEventListener('click', closeSheet);
+                // Tap backdrop to close
+                sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
+
+                window._showGuestPreview = function({ type, title, sub, thumb }) {
+                    const typeEl = $('#guest-preview-type');
+                    const titleEl = $('#guest-preview-title');
+                    const subEl = $('#guest-preview-sub');
+                    const thumbEl = $('#guest-preview-thumb');
+                    if (typeEl) typeEl.textContent = type || '';
+                    if (titleEl) titleEl.textContent = title || '';
+                    if (subEl) subEl.textContent = sub || '';
+                    if (thumbEl) {
+                        if (thumb) {
+                            thumbEl.innerHTML = `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">`;
+                        } else {
+                            const icon = type === 'Playlist' ? 'queue_music' : type === 'Profile' ? 'person' : 'music_note';
+                            thumbEl.innerHTML = `<span class="material-icons" style="color:white;font-size:28px;">${icon}</span>`;
+                        }
+                    }
+                    openSheet();
+                };
+            }
+
+            // Check URL params for guest (before login)
+            function checkSharedUrlForGuest() {
+                const params = new URLSearchParams(window.location.search);
+                const plParam = params.get('playlist');
+                const collabParam = params.get('collab');
+                const playParam = params.get('play');
+                const friendParam = params.get('addFriend');
+
+                if (!plParam && !collabParam && !playParam && !friendParam) return;
+
+                // If already logged in, params handled after login
+                if (currentUser && !currentUser.isAnonymous) return;
+
+                // Load songs in bg for preview
+                if (plParam) {
+                    try {
+                        const parsed = JSON.parse(decodeURIComponent(atob(plParam)));
+                        window._showGuestPreview?.({
+                            type: 'Playlist',
+                            title: parsed.n || 'Shared Playlist',
+                            sub: (parsed.s?.length || 0) + ' songs',
+                            thumb: null
+                        });
+                    } catch(e) {}
+                } else if (collabParam) {
+                    window._showGuestPreview?.({
+                        type: 'Collab Playlist',
+                        title: 'Collaborative Playlist',
+                        sub: 'Join and listen together!',
+                        thumb: null
+                    });
+                } else if (playParam) {
+                    // Try to show song name from URL
+                    window._showGuestPreview?.({
+                        type: 'Song',
+                        title: decodeURIComponent(playParam).replace(/_/g,' '),
+                        sub: 'Listen on Musico',
+                        thumb: null
+                    });
+                } else if (friendParam) {
+                    window._showGuestPreview?.({
+                        type: 'Friend Request',
+                        title: 'Someone wants to connect',
+                        sub: 'ID: ' + friendParam,
+                        thumb: null
+                    });
+                }
+            }
+
             // ── HANDLE ?playlist= URL param on load ──
             function handlePlaylistUrlParam() {
                 const params = new URLSearchParams(window.location.search);
@@ -4356,7 +4722,6 @@ audioPlayer.addEventListener('ended', () => {
                 try {
                     const parsed = JSON.parse(decodeURIComponent(atob(plParam)));
                     if (!parsed.n || !parsed.s || !parsed.s.length) return;
-                    // Show as community playlist view after songs loaded
                     const tryOpen = () => {
                         if (!allSongs.length) { setTimeout(tryOpen, 500); return; }
                         showListView('community', null, { name: parsed.n, songs: parsed.s, ownerName: 'Shared' });
@@ -4365,6 +4730,314 @@ audioPlayer.addEventListener('ended', () => {
                     tryOpen();
                 } catch(e) { console.warn('Invalid playlist URL param'); }
             }
+
+            // ════════════════════════════════════════════════════════════
+            // FEATURE 5 — DYNAMIC ALBUM ART COLOR THEME
+            // ════════════════════════════════════════════════════════════
+            const _colorCanvas = document.createElement('canvas');
+            const _colorCtx = _colorCanvas.getContext('2d');
+            _colorCanvas.width = 50; _colorCanvas.height = 50;
+
+            function extractDominantColor(imgSrc) {
+                return new Promise(resolve => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        try {
+                            _colorCtx.clearRect(0,0,50,50);
+                            _colorCtx.drawImage(img, 0, 0, 50, 50);
+                            const data = _colorCtx.getImageData(0, 0, 50, 50).data;
+                            let rSum=0, gSum=0, bSum=0, count=0;
+                            for (let i=0; i<data.length; i+=16) {
+                                const r=data[i], g=data[i+1], b=data[i+2];
+                                const brightness=(r+g+b)/3;
+                                const saturation=Math.max(r,g,b)-Math.min(r,g,b);
+                                if (brightness>30 && brightness<220 && saturation>30) {
+                                    rSum+=r; gSum+=g; bSum+=b; count++;
+                                }
+                            }
+                            if (!count) { resolve(null); return; }
+                            const r=Math.round(rSum/count), g=Math.round(gSum/count), b=Math.round(bSum/count);
+                            const hex='#'+r.toString(16).padStart(2,'0')+g.toString(16).padStart(2,'0')+b.toString(16).padStart(2,'0');
+                            resolve({ r, g, b, hex });
+                        } catch(e) { resolve(null); }
+                    };
+                    img.onerror = () => resolve(null);
+                    img.src = imgSrc;
+                });
+            }
+
+            function _adjColor(hex, factor) {
+                const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+                return '#'+[r,g,b].map(c=>Math.max(0,Math.min(255,Math.round(c*factor))).toString(16).padStart(2,'0')).join('');
+            }
+
+            let _lastColorSrc = '';
+            async function applyDynamicColor(imgSrc) {
+                if (!imgSrc || imgSrc === _lastColorSrc) return;
+                _lastColorSrc = imgSrc;
+                const color = await extractDominantColor(imgSrc);
+                if (!color) return;
+                const primary = color.hex;
+                const dark = _adjColor(primary, 0.22);
+                const light = _adjColor(primary, 1.45);
+                // CSS vars
+                document.documentElement.style.setProperty('--dyn-primary', primary);
+                document.documentElement.style.setProperty('--dyn-secondary', light);
+                document.documentElement.style.setProperty('--dyn-bg', dark);
+                // Mini player
+                const mp = document.getElementById('mini-player');
+                if (mp) { mp.style.background = `linear-gradient(135deg, ${dark} 0%, ${primary}99 100%)`; mp.classList.add('dyn-colored'); }
+                // Full player overlay
+                const ov = document.getElementById('fp-bg-overlay');
+                if (ov) ov.classList.add('dyn-overlay');
+                // Progress bars
+                const fpF = document.getElementById('fp-progress-fill');
+                const mpF = document.getElementById('mini-player-progress-fill');
+                if (fpF) fpF.style.background = `linear-gradient(90deg,${primary},${light})`;
+                if (mpF) mpF.style.background = `linear-gradient(90deg,${primary},${light})`;
+                // Artwork pulse
+                const aw = document.getElementById('full-player-artwork');
+                if (aw) { aw.classList.remove('dyn-artwork-pulse'); void aw.offsetWidth; aw.classList.add('dyn-artwork-pulse'); setTimeout(()=>aw.classList.remove('dyn-artwork-pulse'),800); }
+            }
+
+            // ════════════════════════════════════════════════════════════
+            // FEATURE 4 — COLLABORATIVE PLAYLISTS (Real-time Firebase)
+            // ════════════════════════════════════════════════════════════
+            let _collabUnsub = null;
+            let _activeCollabId = null;
+
+            async function createCollabPlaylist(name) {
+                if (!currentUser || currentUser.isAnonymous) { showToast('Login required'); return; }
+                const id = 'collab_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+                const plData = {
+                    id, name, ownerId: currentUser.uid,
+                    ownerName: userData.name || 'User',
+                    members: [currentUser.uid],
+                    memberNames: { [currentUser.uid]: userData.name || 'User' },
+                    songs: [], createdAt: Timestamp.now(), coverImg: null
+                };
+                try {
+                    await setDoc(doc(db, 'collabPlaylists', id), plData);
+                    showToast('👥 Collaborative playlist created!');
+                    openCollabPage(id);
+                    renderHomeCollabPlaylists();
+                } catch(e) { showToast('Error: ' + e.message); }
+            }
+
+            async function renderHomeCollabPlaylists() {
+                if (!currentUser || currentUser.isAnonymous) return;
+                const section = $('#home-collab-section');
+                const listEl = $('#home-collab-list');
+                if (!section || !listEl) return;
+                try {
+                    const snap = await getDocs(query(collection(db,'collabPlaylists'), orderBy('createdAt','desc'), limit(20)));
+                    const mine = [];
+                    snap.forEach(d => { const pl=d.data(); if(pl.members?.includes(currentUser.uid)) mine.push(pl); });
+                    if (!mine.length) { section.classList.add('hidden'); return; }
+                    section.classList.remove('hidden');
+                    listEl.innerHTML = mine.map(pl=>`
+                        <div class="collab-playlist-card" data-collab-id="${pl.id}">
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <div style="width:50px;height:50px;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                                    ${pl.coverImg?`<img src="${pl.coverImg}" style="width:100%;height:100%;object-fit:cover;">`:'<span class="material-icons" style="color:white;font-size:22px;">queue_music</span>'}
+                                </div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${pl.name}</div>
+                                    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${pl.songs.length} songs · ${pl.members.length} members</div>
+                                    <span class="collab-badge" style="margin-top:5px;display:inline-flex;">👥 COLLAB</span>
+                                </div>
+                                <span class="material-icons" style="color:var(--text-secondary);">chevron_right</span>
+                            </div>
+                        </div>`).join('');
+                    listEl.querySelectorAll('[data-collab-id]').forEach(card => {
+                        card.addEventListener('click', ()=>openCollabPage(card.dataset.collabId));
+                    });
+                } catch(e) { console.warn('Collab load:', e); }
+            }
+
+            function openCollabPage(collabId) {
+                _activeCollabId = collabId;
+                if (_collabUnsub) { _collabUnsub(); _collabUnsub=null; }
+                navigateTo('collab-page');
+                _collabUnsub = onSnapshot(doc(db,'collabPlaylists',collabId), snap => {
+                    if (!snap.exists()) { showToast('Playlist deleted'); navigateBack(); return; }
+                    renderCollabPage(snap.data());
+                });
+            }
+
+            function renderCollabPage(pl) {
+                const titleEl=$('#collab-page-title'), membersEl=$('#collab-page-members'),
+                      coverEl=$('#collab-page-cover'), listEl=$('#collab-songs-list');
+                if (!titleEl) return;
+                titleEl.textContent = pl.name;
+                membersEl.textContent = pl.members.length + ' members · live 🟢';
+                if (coverEl) coverEl.innerHTML = pl.coverImg?`<img src="${pl.coverImg}" style="width:100%;height:100%;object-fit:cover;">`:'<span class="material-icons" style="color:white;font-size:20px;">queue_music</span>';
+
+                if (!pl.songs?.length) {
+                    listEl.innerHTML=`<div style="text-align:center;padding:40px 20px;color:var(--text-secondary);"><span class="material-icons" style="font-size:48px;opacity:.3;display:block;margin-bottom:12px;">queue_music</span><p>No songs yet. Search & add above!</p></div>`;
+                } else {
+                    listEl.innerHTML = pl.songs.map((entry,i) => {
+                        const s=getSongById(entry.id); if(!s) return '';
+                        const img=s.img128||s.img||'https://placehold.co/46x46/1E1E1E/fff?text=M';
+                        const canRemove=pl.ownerId===currentUser?.uid||entry.addedBy===currentUser?.uid;
+                        return `<div class="collab-song-item" data-song-id="${s.id}">
+                            <img class="collab-song-thumb" src="${img}" onerror="this.src='https://placehold.co/46x46'">
+                            <div class="collab-song-info">
+                                <div class="collab-song-title">${s.title}</div>
+                                <div class="collab-song-meta">${s.artist||''}</div>
+                                <div class="collab-added-by">Added by ${entry.addedByName||'someone'}</div>
+                            </div>
+                            ${canRemove?`<button class="collab-remove-btn" data-idx="${i}"><span class="material-icons" style="font-size:20px;">remove_circle_outline</span></button>`:''}
+                        </div>`;
+                    }).join('');
+                    listEl.querySelectorAll('.collab-song-item').forEach(item => {
+                        item.addEventListener('click', e => {
+                            if (e.target.closest('.collab-remove-btn')) return;
+                            playSongs(pl.songs.map(s=>s.id), pl.songs.findIndex(s=>s.id===item.dataset.songId));
+                        });
+                    });
+                    listEl.querySelectorAll('.collab-remove-btn').forEach(btn => {
+                        btn.addEventListener('click', async () => {
+                            const idx=parseInt(btn.dataset.idx);
+                            const newSongs=pl.songs.filter((_,i)=>i!==idx);
+                            await updateDoc(doc(db,'collabPlaylists',_activeCollabId),{songs:newSongs}).catch(e=>showToast(e.message));
+                            showActivityTicker('🗑 Song removed');
+                        });
+                    });
+                }
+                const playBtn=$('#collab-play-all-btn');
+                if (playBtn) playBtn.onclick=()=>{ const ids=pl.songs.map(s=>s.id); if(ids.length) playSongs(ids,0); else showToast('No songs yet!'); };
+                const invBtn=$('#collab-invite-btn');
+                if (invBtn) invBtn.onclick=()=>openCollabInviteModal(pl);
+            }
+
+            function showActivityTicker(msg) {
+                const t=$('#collab-activity-ticker'); if(!t) return;
+                t.textContent=msg; t.style.display='block';
+                clearTimeout(t._t); t._t=setTimeout(()=>{t.style.display='none';},3000);
+            }
+
+            function initCollabAddSong() {
+                const inp=$('#collab-add-song-input'), results=$('#collab-add-song-results');
+                if (!inp||!results) return;
+                let deb;
+                inp.addEventListener('input', e => {
+                    const q=e.target.value.trim().toLowerCase();
+                    clearTimeout(deb);
+                    if (!q) { results.style.display='none'; return; }
+                    deb=setTimeout(()=>{
+                        const matches=allSongs.filter(s=>!s.isDeleted&&!s.isHidden&&((s.title||'').toLowerCase().includes(q)||(s.artist||'').toLowerCase().includes(q))).slice(0,8);
+                        if (!matches.length) { results.style.display='none'; return; }
+                        results.style.display='block';
+                        results.innerHTML=matches.map(s=>`
+                            <div class="collab-add-result-item" data-sid="${s.id}">
+                                <img src="${s.img128||s.img||'https://placehold.co/40'}" onerror="this.src='https://placehold.co/40'">
+                                <div class="collab-add-result-info"><p>${s.title}</p><span>${s.artist||''}</span></div>
+                                <button class="collab-add-btn" data-sid="${s.id}"><span class="material-icons" style="font-size:16px;">add</span></button>
+                            </div>`).join('');
+                        results.querySelectorAll('.collab-add-btn').forEach(btn=>{
+                            btn.addEventListener('click', async ev=>{
+                                ev.stopPropagation();
+                                if (!_activeCollabId) return;
+                                const song=getSongById(btn.dataset.sid); if(!song) return;
+                                try {
+                                    const ref=doc(db,'collabPlaylists',_activeCollabId);
+                                    const snap=await getDoc(ref); if(!snap.exists()) return;
+                                    const pl=snap.data();
+                                    if (pl.songs.some(s=>s.id===song.id)) { showToast('Already added!'); return; }
+                                    await updateDoc(ref,{songs:arrayUnion({id:song.id,addedBy:currentUser.uid,addedByName:userData.name||'User',addedAt:Date.now()})});
+                                    inp.value=''; results.style.display='none';
+                                    showActivityTicker('✅ '+song.title+' added');
+                                } catch(e){showToast('Error: '+e.message);}
+                            });
+                        });
+                    },200);
+                });
+            }
+
+            async function openCollabInviteModal(pl) {
+                const nameEl=$('#collab-playlist-name-display'), linkEl=$('#collab-link-text');
+                if (nameEl) nameEl.textContent=pl.name;
+                const url=APP_URL+'?collab='+pl.id;
+                if (linkEl) linkEl.textContent=url;
+                const copyBtn=$('#copy-collab-link-btn');
+                if (copyBtn) copyBtn.onclick=()=>navigator.clipboard.writeText(url).then(()=>showToast('📋 Link copied!'));
+                const invList=$('#collab-friends-invite-list'), memList=$('#collab-members-list');
+                const friends=userData.friends||[];
+                if (invList) {
+                    if (!friends.length) { invList.innerHTML='<p style="text-align:center;padding:14px;color:var(--text-secondary);font-size:13px;">Add friends first!</p>'; }
+                    else {
+                        const items=await Promise.all(friends.filter(uid=>!pl.members.includes(uid)).map(async uid=>{
+                            try{const snap=await getDoc(doc(db,'users',uid));if(!snap.exists())return null;const u=snap.data();const av=u.photoBase64?`<img src="${u.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(u.name||'?').charAt(0);
+                            return `<div class="collab-friend-invite-item"><div class="collab-friend-av">${av}</div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;">${u.name||'User'}</div></div><button class="friend-action-btn add" onclick="inviteToCollab('${uid}','${pl.id}','${(u.name||'User').replace(/'/g,"\\'")}',this)">Invite</button></div>`;}catch(e){return null;}
+                        }));
+                        invList.innerHTML=items.filter(Boolean).join('')||'<p style="text-align:center;padding:14px;color:var(--text-secondary);">All friends are members!</p>';
+                    }
+                }
+                if (memList) {
+                    const mItems=await Promise.all(pl.members.map(async uid=>{
+                        try{const snap=await getDoc(doc(db,'users',uid));const u=snap.exists()?snap.data():{};const av=u.photoBase64?`<img src="${u.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(u.name||'?').charAt(0);
+                        return `<div class="collab-friend-invite-item"><div class="collab-friend-av">${av}</div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;">${u.name||'User'}</div></div><span style="font-size:11px;color:${uid===pl.ownerId?'var(--accent-primary)':'var(--text-secondary)'};font-weight:700;">${uid===pl.ownerId?'OWNER':'MEMBER'}</span></div>`;}catch(e){return null;}
+                    }));
+                    memList.innerHTML=mItems.filter(Boolean).join('');
+                }
+                showModal('#collab-invite-modal');
+            }
+
+            window.inviteToCollab = async function(friendUid,collabId,friendName,btn) {
+                btn.disabled=true; btn.textContent='Inviting...';
+                try {
+                    const ref=doc(db,'collabPlaylists',collabId);
+                    const snap=await getDoc(ref); if(!snap.exists()){showToast('Not found');return;}
+                    const pl=snap.data();
+                    await updateDoc(ref,{members:arrayUnion(friendUid),memberNames:{...pl.memberNames,[friendUid]:friendName}});
+                    await updateDoc(doc(db,'users',friendUid),{collabInvites:arrayUnion(collabId)}).catch(()=>{});
+                    btn.textContent='✓ Invited'; showToast('✅ '+friendName+' invited!');
+                } catch(e){showToast('Error: '+e.message);btn.disabled=false;btn.textContent='Invite';}
+            };
+
+            function handleCollabUrlParam() {
+                const params=new URLSearchParams(window.location.search);
+                const collabId=params.get('collab');
+                if (!collabId) return;
+                const tryJoin=async()=>{
+                    if (!currentUser){setTimeout(tryJoin,800);return;}
+                    try{
+                        const ref=doc(db,'collabPlaylists',collabId);
+                        const snap=await getDoc(ref); if(!snap.exists()){showToast('Playlist not found');return;}
+                        const pl=snap.data();
+                        if (!pl.members.includes(currentUser.uid)) {
+                            await updateDoc(ref,{members:arrayUnion(currentUser.uid),memberNames:{...pl.memberNames,[currentUser.uid]:userData.name||'User'}});
+                            showToast('👥 Joined "'+pl.name+'"!');
+                        }
+                        openCollabPage(collabId);
+                        renderHomeCollabPlaylists();
+                    }catch(e){showToast('Error: '+e.message);}
+                };
+                tryJoin();
+            }
+
+            function initCollabPage() {
+                const backBtn=$('#collab-page-back-btn');
+                if (backBtn) backBtn.addEventListener('click',()=>{
+                    if (_collabUnsub){_collabUnsub();_collabUnsub=null;}
+                    _activeCollabId=null; navigateBack();
+                });
+                initCollabAddSong();
+                const newBtn=$('#new-collab-playlist-btn');
+                if (newBtn) newBtn.addEventListener('click',()=>{
+                    const name=prompt('Collaborative playlist naam:');
+                    if (name?.trim()) createCollabPlaylist(name.trim());
+                });
+                const makeCollabBtn=$('#make-collab-btn');
+                if (makeCollabBtn) makeCollabBtn.addEventListener('click',()=>{
+                    if (!_editingPlaylistName) return;
+                    $('#playlist-edit-modal').classList.remove('open');
+                    createCollabPlaylist(_editingPlaylistName);
+                });
+            }
+
             let sleepTimerInterval = null;
 
             function startSleepTimer(minutes) {
@@ -5138,6 +5811,68 @@ audioPlayer.addEventListener('ended', () => {
         </div>
     </div>
 
+    <!-- COLLABORATIVE PLAYLIST MODAL - Invite & Manage -->
+    <div id="collab-invite-modal" class="modal-overlay">
+        <div class="modal-content" style="max-height:85vh;">
+            <div class="modal-header">
+                <h3>👥 Collaborative Playlist</h3>
+                <span class="material-icons close-btn">close</span>
+            </div>
+            <div id="collab-playlist-name-display" style="font-size:16px;font-weight:700;margin-bottom:4px;"></div>
+            <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">Friends can add/remove songs in real-time</p>
+            <!-- Collab link -->
+            <div style="background:var(--bg-primary);border:1.5px solid var(--border-color);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <span class="material-icons" style="color:var(--accent-primary);font-size:20px;">link</span>
+                <div id="collab-link-text" style="flex:1;font-size:12px;font-family:monospace;color:var(--text-secondary);word-break:break-all;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></div>
+                <button id="copy-collab-link-btn" style="background:none;border:none;cursor:pointer;color:var(--accent-primary);flex-shrink:0;">
+                    <span class="material-icons" style="font-size:20px;">content_copy</span>
+                </button>
+            </div>
+            <!-- Invite friends -->
+            <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-secondary);">INVITE FRIENDS</h4>
+            <div id="collab-friends-invite-list" style="max-height:180px;overflow-y:auto;margin-bottom:16px;"></div>
+            <!-- Current collaborators -->
+            <h4 style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-secondary);">COLLABORATORS</h4>
+            <div id="collab-members-list" style="max-height:160px;overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <!-- COLLAB PLAYLIST VIEW PAGE (Full screen, realtime) -->
+    <div id="collab-page" class="page" style="display:none;">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 0 10px;position:sticky;top:0;background:var(--bg-primary);z-index:10;border-bottom:1px solid var(--border-color);">
+            <button id="collab-page-back-btn" style="background:none;border:none;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;padding:4px;">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <div id="collab-page-cover" style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                <span class="material-icons" style="color:white;font-size:20px;">queue_music</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div id="collab-page-title" style="font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+                <div id="collab-page-members" style="font-size:11px;color:var(--accent-primary);font-weight:600;"></div>
+            </div>
+            <div style="display:flex;gap:6px;">
+                <button id="collab-play-all-btn" style="background:none;border:none;cursor:pointer;color:var(--text-primary);display:flex;align-items:center;">
+                    <span class="material-icons" style="font-size:26px;color:var(--accent-primary);">play_circle</span>
+                </button>
+                <button id="collab-invite-btn" style="background:none;border:none;cursor:pointer;color:var(--text-secondary);display:flex;align-items:center;" title="Invite friends">
+                    <span class="material-icons" style="font-size:22px;">person_add</span>
+                </button>
+            </div>
+        </div>
+        <!-- Live activity ticker -->
+        <div id="collab-activity-ticker" style="display:none;background:rgba(138,79,255,0.08);border-bottom:1px solid rgba(138,79,255,0.15);padding:7px 12px;font-size:12px;color:var(--accent-primary);font-weight:600;"></div>
+        <!-- Add song bar -->
+        <div id="collab-add-song-bar" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-color);">
+            <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--bg-secondary);border-radius:10px;padding:9px 12px;">
+                <span class="material-icons" style="color:var(--text-secondary);font-size:18px;">search</span>
+                <input type="text" id="collab-add-song-input" placeholder="Search & add songs..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-size:14px;font-family:inherit;">
+            </div>
+        </div>
+        <div id="collab-add-song-results" style="display:none;max-height:180px;overflow-y:auto;border-bottom:1px solid var(--border-color);"></div>
+        <!-- Realtime song list -->
+        <div id="collab-songs-list" style="padding:4px 0;"></div>
+    </div>
+
     <!-- PLAYLIST EDIT MODAL -->
     <div id="playlist-edit-modal" class="playlist-modal-overlay">
         <div class="playlist-modal-box" style="max-height:85vh;overflow-y:auto;">
@@ -5172,6 +5907,9 @@ audioPlayer.addEventListener('ended', () => {
             <div id="edit-playlist-songs-list" style="max-height:200px;overflow-y:auto;margin-bottom:14px;"></div>
             <div style="display:flex;gap:8px;">
                 <button id="save-playlist-edit-btn" style="flex:1;padding:14px;border:none;border-radius:var(--border-radius-md);background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:15px;font-weight:700;cursor:pointer;">Save Changes</button>
+                <button id="make-collab-btn" title="Make Collaborative" style="padding:14px 14px;border:1.5px solid var(--accent-primary);border-radius:var(--border-radius-md);background:transparent;color:var(--accent-primary);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:700;">
+                    <span class="material-icons" style="font-size:18px;">group_add</span>
+                </button>
                 <button id="delete-playlist-btn" style="padding:14px 18px;border:none;border-radius:var(--border-radius-md);background:#FF5252;color:white;font-size:15px;cursor:pointer;" title="Delete Playlist"><span class="material-icons" style="font-size:20px;vertical-align:middle;">delete</span></button>
             </div>
         </div>
