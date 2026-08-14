@@ -32,7 +32,22 @@
     {
       "name": "Search Music",
       "short_name": "Search",
-      "url": "./index.html#search"
+      "url": "./index.html#/search"
+    },
+    {
+      "name": "Liked Songs",
+      "short_name": "Liked",
+      "url": "./index.html#/library/liked"
+    },
+    {
+      "name": "Your Library",
+      "short_name": "Library",
+      "url": "./index.html#/library"
+    },
+    {
+      "name": "Messages",
+      "short_name": "Chat",
+      "url": "./index.html#/chat"
     }
   ]
 }
