@@ -8,7 +8,7 @@
 const CACHE_NAME = 'musico-v1';
 const STATIC_ASSETS = [
   './',
-  './index-29-3.html',
+  './index.html',
   './manifest.json',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
 ];
