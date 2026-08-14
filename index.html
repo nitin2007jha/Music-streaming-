@@ -1934,6 +1934,7 @@
                 initChatPage();
                 initCollabPage();
                 renderHomeCollabPlaylists();
+                routeFromHash(); // open the page from an installed shortcut / deep link, if any
             }
 
             // ── PUSH NOTIFICATIONS (Web Push via Service Worker) ──
@@ -2158,7 +2159,51 @@
                     if (chatRoomView) chatRoomView.style.display = 'none';
                     document.body.classList.remove('chat-room-open'); // list view = no fullscreen
                 }
+                // ── URL hash sync (deep-link support for PWA shortcuts) ──
+                if (PAGE_TO_HASH[pageId]) setUrlHash(PAGE_TO_HASH[pageId]);
             }
+
+            // ════════════════════════════════════════════════════════════
+            // HASH ROUTER — gives every tab its own shareable/installable URL
+            // (#/xxx never leaves the browser, so it can never be used to
+            // pull another user's data — it only ever picks which page to
+            // *show*; every render still reads from the already-signed-in
+            // currentUser/userData, exactly like the rest of the app.)
+            // ════════════════════════════════════════════════════════════
+            const PAGE_TO_HASH = {
+                'home-page': 'home',
+                'search-page': 'search',
+                'library-page': 'library',
+                'chat-page': 'chat',
+                'profile-page': 'profile',
+                'settings-page': 'settings'
+            };
+            let _routingFromHash = false;
+            function setUrlHash(hash) {
+                if (_routingFromHash) return; // don't fight the router while it's applying a route
+                const target = '#/' + hash;
+                if (location.hash !== target) history.replaceState(null, '', target);
+            }
+            const HASH_ROUTES = {
+                'home': () => navigateTo('home-page', false),
+                'search': () => navigateTo('search-page', false),
+                'library': () => navigateTo('library-page', false),
+                'library/liked': () => showListView('liked'),
+                'library/downloads': () => showListView('downloads'),
+                'chat': () => navigateTo('chat-page', false),
+                'profile': () => navigateTo('profile-page', false),
+                'settings': () => navigateTo('settings-page', false)
+            };
+            function routeFromHash() {
+                if (!currentUser) return; // session not ready yet — re-run happens after login
+                const raw = (location.hash || '').replace(/^#\/?/, '').replace(/\/$/, '');
+                if (!raw) return;
+                const run = HASH_ROUTES[raw];
+                if (!run) return; // unknown route → ignore, never guess a page/data to open
+                _routingFromHash = true;
+                try { run(); } finally { _routingFromHash = false; }
+            }
+            window.addEventListener('hashchange', routeFromHash);
             function navigateBack() {
                 if (_navHistory.length > 0) {
                     const prev = _navHistory.pop();
@@ -2897,11 +2942,13 @@
                 let plObj = null;
 
                 if (type === 'liked') {
+                    setUrlHash('library/liked');
                     titleEl.textContent = 'Liked Songs';
                     songsToShow = (userData.likedSongs || []).map(getSongById).filter(Boolean);
                     plType = 'LIKED SONGS';
                     plMeta = songsToShow.length + ' songs';
                 } else if (type === 'downloads') {
+                    setUrlHash('library/downloads');
                     titleEl.textContent = 'Downloads';
                     songsToShow = Array.from(downloadedSongs.values());
                     isDownloadView = true;
