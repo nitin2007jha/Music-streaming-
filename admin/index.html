@@ -1217,9 +1217,12 @@ const auth = firebase.auth();
 // Client-side allowlist only STOPS THE UI from loading for the wrong person.
 // It does NOT stop someone with devtools from calling Firestore directly.
 // Real protection must come from Firestore security rules that also check
-// this same UID/email — see the rules snippet shared alongside this file.
+// this same email — see the rules snippet shared alongside this file.
+// ⚠️ Replace this with your real admin email(s) — it MUST match exactly
+// (case-insensitive) the email of a user you created in
+// Firebase Console → Authentication → Users.
 const ADMIN_EMAILS = [
-    'nj966248@gamil.com'
+    'nj966248@gmail.com'
 ];
 
 function adminLogin() {
@@ -1240,12 +1243,19 @@ if ('serviceWorker' in navigator) {
 auth.onAuthStateChanged(user => {
     const overlay = document.getElementById('admin-login-overlay');
     const root = document.getElementById('admin-app-root');
-    if (user && ADMIN_EMAILS.includes(user.email)) {
+    const errEl = document.getElementById('admin-login-error');
+    const isWhitelisted = user && ADMIN_EMAILS.some(e => e.trim().toLowerCase() === (user.email || '').trim().toLowerCase());
+    if (isWhitelisted) {
         overlay.style.display = 'none';
         root.style.display = 'flex';
         initDashboard();
     } else {
-        if (user) auth.signOut(); // signed in but not whitelisted
+        if (user) {
+            // Signed in successfully but not on the allowlist — show why, then sign out.
+            errEl.textContent = 'This account (' + user.email + ') is not an authorized admin.';
+            errEl.style.display = 'block';
+            auth.signOut();
+        }
         overlay.style.display = 'flex';
         root.style.display = 'none';
     }
