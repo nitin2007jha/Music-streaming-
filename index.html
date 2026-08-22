@@ -759,6 +759,76 @@
             background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
         }
         /* ─── END CHAT CSS ─── */
+
+        /* ═══════════════ CHAT UPGRADE: animations, typing, notifications ═══════════════ */
+        @keyframes msgPopIn {
+            0% { opacity: 0; transform: translateY(10px) scale(.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .chat-msg-wrap.msg-new { animation: msgPopIn .32s cubic-bezier(.22,1,.36,1); }
+        .chat-bubble { transition: box-shadow .15s; }
+
+        /* Typing indicator dots */
+        .typing-dots { display:inline-flex; align-items:center; gap:3px; padding:2px 0; }
+        .typing-dots span {
+            width:6px; height:6px; border-radius:50%; background:var(--accent-primary);
+            display:inline-block; animation: typingBounce 1.1s infinite ease-in-out;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: .15s; }
+        .typing-dots span:nth-child(3) { animation-delay: .3s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: .5; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+        .chat-typing-bubble .chat-bubble { padding: 12px 16px; }
+
+        /* Chat nav badge dot */
+        .chat-nav-badge {
+            position:absolute; top:2px; right:calc(50% - 18px); min-width:9px; height:9px;
+            border-radius:10px; background:var(--accent-primary); box-shadow:0 0 0 2px var(--bg-primary);
+            animation: navBadgePulse 1.6s infinite;
+        }
+        .chat-nav-badge.hidden { display:none; }
+        @keyframes navBadgePulse {
+            0%, 100% { box-shadow:0 0 0 2px var(--bg-primary), 0 0 0 0 rgba(138,79,255,.5); }
+            50% { box-shadow:0 0 0 2px var(--bg-primary), 0 0 0 4px rgba(138,79,255,0); }
+        }
+
+        /* Skeleton shimmer for loading states */
+        @keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+        .skel-row { display:flex; align-items:center; gap:12px; padding:12px 0; }
+        .skel-avatar, .skel-line, .skel-bubble {
+            background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(255,255,255,.06) 37%, var(--bg-secondary) 63%);
+            background-size: 400px 100%; animation: shimmer 1.4s infinite linear; border-radius: 8px;
+        }
+        .skel-avatar { width:50px; height:50px; border-radius:50%; flex-shrink:0; }
+        .skel-line { height:12px; flex:1; max-width:160px; }
+        .skel-bubble { height:36px; border-radius:18px; margin:6px 0; }
+
+        /* Input bar — focus glow + send button pop */
+        #chat-input-bar > div:first-child { transition: border-color .2s, box-shadow .2s; }
+        #chat-input-bar > div:first-child.focused { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(138,79,255,.15); }
+        #chat-send-btn.sending { transform: scale(.85); }
+        #chat-send-btn:active { transform: scale(.88); }
+
+        /* Toast-style incoming message notification */
+        .chat-notif-toast {
+            position: fixed; top: 14px; left: 50%; transform: translateX(-50%) translateY(-120%);
+            width: min(92vw, 420px); background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 8px 28px rgba(0,0,0,.35); z-index: 3000; transition: transform .32s cubic-bezier(.22,1,.36,1);
+            cursor: pointer;
+        }
+        .chat-notif-toast.visible { transform: translateX(-50%) translateY(0); }
+        .chat-notif-toast .cnt-avatar {
+            width:38px; height:38px; border-radius:50%; flex-shrink:0; overflow:hidden;
+            background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+            display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700;
+        }
+        .chat-notif-toast .cnt-text { flex:1; min-width:0; }
+        .chat-notif-toast .cnt-name { font-size:13px; font-weight:700; }
+        .chat-notif-toast .cnt-msg { font-size:12.5px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        /* ─── END CHAT UPGRADE CSS ─── */
         :root {
             --dyn-primary: #8A4FFF;
             --dyn-secondary: #5899FF;
@@ -1500,7 +1570,7 @@
         
         <nav id="bottom-nav">
             <div class="nav-item active" data-page="home-page"><span class="material-icons">home</span><span>Home</span></div>
-            <div class="nav-item" data-page="chat-page"><span class="material-icons">chat_bubble_outline</span><span>Chat</span></div>
+            <div class="nav-item" data-page="chat-page" style="position:relative;"><span class="material-icons">chat_bubble_outline</span><span>Chat</span><span id="chat-nav-badge" class="chat-nav-badge hidden"></span></div>
             <div class="nav-item" data-page="library-page"><span class="material-icons">library_music</span><span>Library</span></div>
             <div class="nav-item" data-page="profile-page"><span class="material-icons">account_circle</span><span>Profile</span></div>
         </nav>
@@ -1808,7 +1878,9 @@
         signInWithPopup,
         sendPasswordResetEmail,
         signInAnonymously,
-        linkWithPopup
+        linkWithPopup,
+        setPersistence,
+        browserLocalPersistence
     } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
     import { 
         getFirestore, 
@@ -1892,23 +1964,157 @@
                 loadUserStats();
                 setupTheme();
                 setupOfflineMode();
-                
+
+                setPersistence(auth, browserLocalPersistence).catch(err => console.warn('[Auth] persistence setup failed:', err));
+
+                // ── AUTO-LOGOUT FIX ──
+                // On a flaky/slow connection, Firebase can momentarily report
+                // user=null right after a real login (token refresh hiccup),
+                // which used to bounce straight back to the login screen.
+                // Now: once we've seen a real user, a null is treated as
+                // "possibly transient" and given a short grace window to
+                // resolve itself before we actually sign the UI out —
+                // UNLESS it's a manual Logout tap, which always applies instantly.
+                let _logoutGraceTimer = null;
+                let _hadRealUser = false;
+                function doLogoutNow() {
+                    currentUser = null;
+                    userData = null;
+                    handleUserLoggedOut();
+                    setTimeout(() => checkSharedUrlForGuest(), 800);
+                }
                 onAuthStateChanged(auth, user => {
                     if (user) {
+                        if (_logoutGraceTimer) { clearTimeout(_logoutGraceTimer); _logoutGraceTimer = null; }
+                        _hadRealUser = true;
                         currentUser = user;
                         handleUserLoggedIn();
+                    } else if (_hadRealUser && !window._manualLogout) {
+                        console.warn('[Auth] user went null after being logged in — waiting to see if it recovers before logging out UI');
+                        if (_logoutGraceTimer) clearTimeout(_logoutGraceTimer);
+                        _logoutGraceTimer = setTimeout(() => {
+                            _logoutGraceTimer = null;
+                            if (!auth.currentUser) { _hadRealUser = false; doLogoutNow(); }
+                        }, 3000);
                     } else {
-                        currentUser = null;
-                        userData = null;
-                        handleUserLoggedOut();
-                        // ✅ Check if user came via shared link — show preview
-                        setTimeout(() => checkSharedUrlForGuest(), 800);
+                        _hadRealUser = false;
+                        window._manualLogout = false;
+                        doLogoutNow();
                     }
                 });
                 
                 // ✅ Init guest preview sheet (works even before login)
                 initGuestPreviewSheet();
                 setupEventListeners();
+                initTabSwipeGestures();
+                initPlayerSwipeGestures();
+            }
+
+            // ════════════════════════════════════════════════════════════
+            // GESTURES — swipe between bottom-nav tabs, swipe the full
+            // player open/closed. Kept isolated from the rest of the app
+            // so they can't interfere with existing click handlers.
+            // ════════════════════════════════════════════════════════════
+            function initTabSwipeGestures() {
+                const NAV_ORDER = ['home-page', 'chat-page', 'library-page', 'profile-page'];
+                const container = $('#app-content');
+                if (!container) return;
+                let sx = 0, sy = 0, st = 0, tracking = false;
+
+                container.addEventListener('touchstart', e => {
+                    if (fullPlayer.classList.contains('visible')) { tracking = false; return; }
+                    if (e.target.closest('.carousel-container, .modal-overlay.visible, .carousel, input, textarea, #chat-room-view, [data-no-swipe]')) { tracking = false; return; }
+                    const activePage = document.querySelector('.page.active');
+                    if (!activePage || !NAV_ORDER.includes(activePage.id)) { tracking = false; return; }
+                    const t = e.touches[0];
+                    sx = t.clientX; sy = t.clientY; st = Date.now();
+                    tracking = true;
+                }, { passive: true });
+
+                container.addEventListener('touchend', e => {
+                    if (!tracking) return;
+                    tracking = false;
+                    const t = e.changedTouches[0];
+                    const dx = t.clientX - sx, dy = t.clientY - sy, dt = Date.now() - st;
+                    if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.4 || dt > 700) return;
+                    const activePage = document.querySelector('.page.active');
+                    const idx = NAV_ORDER.indexOf(activePage.id);
+                    if (idx === -1) return;
+                    const nextIdx = dx < 0 ? idx + 1 : idx - 1; // swipe left → next tab
+                    if (nextIdx < 0 || nextIdx >= NAV_ORDER.length) return;
+                    playPageSlideTransition(dx < 0 ? 'left' : 'right');
+                    navigateTo(NAV_ORDER[nextIdx]);
+                }, { passive: true });
+            }
+
+            function playPageSlideTransition(direction) {
+                const activePage = document.querySelector('.page.active');
+                if (!activePage) return;
+                activePage.style.transition = 'none';
+                activePage.style.transform = direction === 'left' ? 'translateX(18px)' : 'translateX(-18px)';
+                activePage.style.opacity = '0.4';
+                requestAnimationFrame(() => {
+                    activePage.style.transition = 'transform .28s cubic-bezier(.22,1,.36,1), opacity .28s ease';
+                    activePage.style.transform = 'translateX(0)';
+                    activePage.style.opacity = '1';
+                    setTimeout(() => { activePage.style.transition = ''; activePage.style.transform = ''; activePage.style.opacity = ''; }, 320);
+                });
+            }
+
+            function initPlayerSwipeGestures() {
+                // Swipe UP on the mini-player → open full player (in addition to tap)
+                let msy = 0, mst = 0, mTracking = false;
+                const miniPlayer = $('#mini-player');
+                if (miniPlayer) {
+                    miniPlayer.addEventListener('touchstart', e => {
+                        if (e.target.closest('#mini-player-controls')) { mTracking = false; return; }
+                        msy = e.touches[0].clientY; mst = Date.now(); mTracking = true;
+                    }, { passive: true });
+                    miniPlayer.addEventListener('touchend', e => {
+                        if (!mTracking) return;
+                        mTracking = false;
+                        const dy = e.changedTouches[0].clientY - msy, dt = Date.now() - mst;
+                        if (dy < -35 && dt < 600) fullPlayer.classList.add('visible');
+                    }, { passive: true });
+                }
+
+                // Drag the full player down to dismiss it (follows the finger live)
+                let fsy = 0, fCurrentY = 0, fDragging = false, fStartedOnSafeZone = false;
+                const dragSurface = $('#full-player-header') || fullPlayer;
+                const artworkZone = $('#full-player-artwork-container');
+
+                function fpTouchStart(e) {
+                    if (e.target.closest('.fp-header-btn, button, .material-icons')) { fStartedOnSafeZone = false; return; }
+                    fsy = e.touches[0].clientY;
+                    fCurrentY = 0;
+                    fDragging = true;
+                    fStartedOnSafeZone = true;
+                    fullPlayer.style.transition = 'none';
+                }
+                function fpTouchMove(e) {
+                    if (!fDragging || !fStartedOnSafeZone) return;
+                    const dy = e.touches[0].clientY - fsy;
+                    if (dy <= 0) return; // only allow dragging downward
+                    fCurrentY = dy;
+                    fullPlayer.style.transform = `translateY(${dy}px)`;
+                    fullPlayer.style.opacity = String(Math.max(1 - dy / 500, 0.5));
+                }
+                function fpTouchEnd() {
+                    if (!fDragging) return;
+                    fDragging = false;
+                    fullPlayer.style.transition = 'transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease';
+                    if (fStartedOnSafeZone && fCurrentY > 120) {
+                        fullPlayer.classList.remove('visible');
+                    }
+                    fullPlayer.style.transform = '';
+                    fullPlayer.style.opacity = '';
+                    fStartedOnSafeZone = false;
+                }
+                [dragSurface, artworkZone].filter(Boolean).forEach(el => {
+                    el.addEventListener('touchstart', fpTouchStart, { passive: true });
+                    el.addEventListener('touchmove', fpTouchMove, { passive: true });
+                    el.addEventListener('touchend', fpTouchEnd, { passive: true });
+                });
             }
 
             async function handleUserLoggedIn() {
@@ -1934,6 +2140,7 @@
                 initChatPage();
                 initCollabPage();
                 renderHomeCollabPlaylists();
+                initGlobalChatNotifications();
                 routeFromHash(); // open the page from an installed shortcut / deep link, if any
             }
 
@@ -2107,6 +2314,11 @@
                 setTimeout(() => authScreen.style.opacity = 1, 10);
                 
                 if(isPlaying) togglePlayPause(false);
+
+                // Clean up per-session listeners
+                if (typeof _chatNotifUnsubscribers !== 'undefined') { _chatNotifUnsubscribers.forEach(u => { try { u(); } catch(e){} }); _chatNotifUnsubscribers = []; }
+                if (typeof _chatUnsubscribe !== 'undefined' && _chatUnsubscribe) { _chatUnsubscribe(); _chatUnsubscribe = null; }
+                if (typeof _typingUnsubscribe !== 'undefined' && _typingUnsubscribe) { _typingUnsubscribe(); _typingUnsubscribe = null; }
             }
             
             async function fetchUserData() {
@@ -3567,7 +3779,7 @@ audioPlayer.addEventListener('ended', () => {
                 $('#detail-back-btn').addEventListener('click', () => navigateBack());
 
                 // --- SETTINGS & MODALS ---
-                $('#logout-btn').addEventListener('click', () => signOut(auth).catch(err => showToast("Logout failed")));
+                $('#logout-btn').addEventListener('click', () => { window._manualLogout = true; signOut(auth).catch(err => { window._manualLogout = false; showToast("Logout failed"); }); });
                 $('#theme-toggle').addEventListener('change', setupTheme);
                 $('#about-btn').addEventListener('click', () => showModal('#about-modal'));
                 $('#unlock-premium-btn').addEventListener('click', () => showModal('#premium-token-modal'));
@@ -4292,6 +4504,7 @@ audioPlayer.addEventListener('ended', () => {
             let _activeChatUid = null;
             let _chatUnsubscribe = null;
             let _chatFriendName = '';
+            let _renderedMsgIds = new Set();
             // ✅ Track last-read timestamp per chat (persisted in localStorage)
             let _chatLastReadTime = (() => {
                 try { return JSON.parse(localStorage.getItem('chatLastRead') || '{}'); } catch(e) { return {}; }
@@ -4305,6 +4518,8 @@ audioPlayer.addEventListener('ended', () => {
                 const backBtn = $('#chat-back-btn');
                 if (backBtn) backBtn.addEventListener('click', () => {
                     if (_chatUnsubscribe) { _chatUnsubscribe(); _chatUnsubscribe = null; }
+                    if (_typingUnsubscribe) { _typingUnsubscribe(); _typingUnsubscribe = null; }
+                    if (_activeChatUid) setTypingState(getChatId(currentUser.uid, _activeChatUid), false);
                     _activeChatUid = null;
                     // ✅ Remove fullscreen mode
                     document.body.classList.remove('chat-room-open');
@@ -4317,16 +4532,30 @@ audioPlayer.addEventListener('ended', () => {
 
                 // Send button
                 const sendBtn = $('#chat-send-btn');
-                if (sendBtn) sendBtn.addEventListener('click', sendChatMessage);
+                if (sendBtn) sendBtn.addEventListener('click', () => {
+                    sendBtn.classList.add('sending');
+                    setTimeout(() => sendBtn.classList.remove('sending'), 160);
+                    sendChatMessage();
+                });
 
                 const msgInput = $('#chat-message-input');
+                const msgInputWrap = msgInput ? msgInput.closest('#chat-input-bar > div') : null;
                 if (msgInput) {
+                    msgInput.addEventListener('focus', () => msgInputWrap && msgInputWrap.classList.add('focused'));
+                    msgInput.addEventListener('blur', () => msgInputWrap && msgInputWrap.classList.remove('focused'));
                     msgInput.addEventListener('keydown', e => {
                         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
                     });
                     msgInput.addEventListener('input', () => {
                         msgInput.style.height = 'auto';
                         msgInput.style.height = Math.min(msgInput.scrollHeight, 100) + 'px';
+                        // ── typing indicator: mark typing now, clear after 1.5s idle ──
+                        if (_activeChatUid) {
+                            const chatId = getChatId(currentUser.uid, _activeChatUid);
+                            setTypingState(chatId, true);
+                            clearTimeout(_typingWriteTimer);
+                            _typingWriteTimer = setTimeout(() => setTypingState(chatId, false), 1500);
+                        }
                     });
                 }
 
@@ -4353,10 +4582,11 @@ audioPlayer.addEventListener('ended', () => {
                 const friends = userData ? (userData.friends || []) : [];
                 if (!friends.length || !currentUser || currentUser.isAnonymous) {
                     if (emptyState) emptyState.style.display = 'block';
+                    updateChatNavBadge(0);
                     return;
                 }
                 if (emptyState) emptyState.style.display = 'none';
-                container.innerHTML = '<p style="color:var(--text-secondary);font-size:13px;padding:10px 0;">Loading chats...</p>';
+                container.innerHTML = `<div class="skel-row"><div class="skel-avatar"></div><div style="flex:1;"><div class="skel-line" style="margin-bottom:8px;width:40%;"></div><div class="skel-line" style="width:70%;"></div></div></div>`.repeat(4);
 
                 const items = await Promise.all(friends.map(async uid => {
                     try {
@@ -4400,8 +4630,10 @@ audioPlayer.addEventListener('ended', () => {
                 if (!valid.length) {
                     container.innerHTML = '';
                     if (emptyState) emptyState.style.display = 'block';
+                    updateChatNavBadge(0);
                     return;
                 }
+                updateChatNavBadge(valid.reduce((sum, f) => sum + (f.unreadCount || 0), 0));
                 container.innerHTML = valid.map(f => {
                     const unread = f.unreadCount || 0;
                     const hasUnread = unread > 0;
@@ -4434,6 +4666,67 @@ audioPlayer.addEventListener('ended', () => {
                         openChatWithUser(friendUid, friendName, photo);
                     });
                 });
+            }
+
+            // ── NOTIFICATIONS: nav badge + incoming-message toast ──
+            function updateChatNavBadge(count) {
+                const badge = $('#chat-nav-badge');
+                if (badge) badge.classList.toggle('hidden', !count);
+            }
+
+            let _chatNotifUnsubscribers = [];
+            function initGlobalChatNotifications() {
+                _chatNotifUnsubscribers.forEach(u => { try { u(); } catch(e){} });
+                _chatNotifUnsubscribers = [];
+                if (!currentUser || currentUser.isAnonymous || !userData) return;
+                (userData.friends || []).forEach(friendUid => {
+                    const chatId = getChatId(currentUser.uid, friendUid);
+                    let firstFire = true;
+                    const unsub = onSnapshot(
+                        query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'desc'), limit(1)),
+                        snap => {
+                            if (firstFire) { firstFire = false; return; } // don't notify for existing history on load
+                            if (snap.empty) return;
+                            const msg = snap.docs[0].data();
+                            if (msg.senderId === currentUser.uid) return;
+                            const viewingThisChat = _activeChatUid === friendUid && document.body.classList.contains('chat-room-open');
+                            if (viewingThisChat) return;
+                            const preview = msg.type === 'song' ? '🎵 Shared a song' : (msg.text || '');
+                            getDoc(doc(db, 'users', friendUid)).then(u => {
+                                const name = u.exists() ? (u.data().name || 'Someone') : 'Someone';
+                                const photo = u.exists() ? u.data().photoBase64 : null;
+                                showChatNotifToast(name, photo, preview, friendUid);
+                            }).catch(() => showChatNotifToast('New message', null, preview, friendUid));
+                            if (document.querySelector('#chat-page.active') && !document.body.classList.contains('chat-room-open')) {
+                                renderChatConversations();
+                            } else {
+                                updateChatNavBadge(1);
+                            }
+                        },
+                        () => {}
+                    );
+                    _chatNotifUnsubscribers.push(unsub);
+                });
+            }
+
+            let _notifToastTimer = null;
+            function showChatNotifToast(name, photo, text, friendUid) {
+                let toast = document.getElementById('chat-notif-toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'chat-notif-toast';
+                    toast.className = 'chat-notif-toast';
+                    document.body.appendChild(toast);
+                }
+                toast.innerHTML = `<div class="cnt-avatar">${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : (name||'?').charAt(0).toUpperCase()}</div>
+                    <div class="cnt-text"><div class="cnt-name">${name}</div><div class="cnt-msg">${(text||'').replace(/</g,'&lt;')}</div></div>`;
+                toast.onclick = () => {
+                    toast.classList.remove('visible');
+                    openChatWithUser(friendUid, name, photo || '');
+                };
+                requestAnimationFrame(() => toast.classList.add('visible'));
+                clearTimeout(_notifToastTimer);
+                _notifToastTimer = setTimeout(() => toast.classList.remove('visible'), 4000);
             }
 
             function filterChatConversations(q) {
@@ -4493,7 +4786,8 @@ audioPlayer.addEventListener('ended', () => {
                 const chatId = getChatId(currentUser.uid, friendUid);
                 const container = $('#chat-messages-container');
                 if (!container) return;
-                container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">Loading messages...</p>';
+                container.innerHTML = `<div style="padding:10px 0;">${'<div class="skel-bubble" style="width:55%;"></div>'.repeat(1)}${'<div class="skel-bubble" style="width:40%;margin-left:auto;"></div>'}${'<div class="skel-bubble" style="width:60%;"></div>'}</div>`;
+                _renderedMsgIds = new Set();
 
                 try {
                     const msgsRef = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp', 'asc'), limit(100));
@@ -4503,6 +4797,31 @@ audioPlayer.addEventListener('ended', () => {
                 } catch(e) {
                     container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">Could not load messages.</p>';
                 }
+                listenToTypingStatus(chatId, friendUid);
+            }
+
+            // ── TYPING INDICATOR ──
+            let _typingUnsubscribe = null;
+            let _typingWriteTimer = null;
+            let _lastTypingWriteState = false;
+            function setTypingState(chatId, isTyping) {
+                if (_lastTypingWriteState === isTyping) return;
+                _lastTypingWriteState = isTyping;
+                setDoc(doc(db, 'chats', chatId), { typing: { [currentUser.uid]: isTyping ? Timestamp.now() : null } }, { merge: true }).catch(() => {});
+            }
+            function listenToTypingStatus(chatId, friendUid) {
+                if (_typingUnsubscribe) { _typingUnsubscribe(); _typingUnsubscribe = null; }
+                const statusEl = $('#chat-room-status');
+                _typingUnsubscribe = onSnapshot(doc(db, 'chats', chatId), snap => {
+                    const data = snap.data();
+                    const t = data?.typing?.[friendUid];
+                    const isTypingNow = t && (Date.now() - (t.seconds ? t.seconds * 1000 : 0)) < 6000;
+                    if (statusEl) {
+                        statusEl.innerHTML = isTypingNow
+                            ? `typing<span class="typing-dots"><span></span><span></span><span></span></span>`
+                            : '● online';
+                    }
+                }, () => {});
             }
 
             function renderChatMessages(messages) {
@@ -4558,11 +4877,12 @@ audioPlayer.addEventListener('ended', () => {
                         bubbleContent = `${msg.text || ''}`;
                     }
 
-                    return `${dateDiv}${unreadDivider}<div class="chat-msg-wrap ${side}">
+                    return `${dateDiv}${unreadDivider}<div class="chat-msg-wrap ${side}${!_renderedMsgIds.has(msg.id) ? ' msg-new' : ''}" data-msg-id="${msg.id}">
                         <div class="chat-bubble">${bubbleContent}<div class="chat-msg-time">${timeStr}</div></div>
                     </div>`;
                 }).join('');
 
+                messages.forEach(m => _renderedMsgIds.add(m.id));
                 container.innerHTML = html;
 
                 // ✅ Scroll to first unread, else scroll to bottom
@@ -4610,6 +4930,8 @@ audioPlayer.addEventListener('ended', () => {
                 input.value = ''; input.style.height = 'auto';
 
                 const chatId = getChatId(currentUser.uid, _activeChatUid);
+                clearTimeout(_typingWriteTimer);
+                setTypingState(chatId, false);
                 try {
                     await addDoc(collection(db, 'chats', chatId, 'messages'), {
                         text, senderId: currentUser.uid,
