@@ -483,14 +483,6 @@
             display: flex; align-items: center; gap: 10px; margin-top: 12px;
         }
         #fp-volume-row .material-icons { font-size: 20px; color: rgba(255,255,255,0.4); }
-        #volume-slider {
-            flex: 1; -webkit-appearance: none; height: 3px;
-            background: rgba(255,255,255,0.15); border-radius: 10px; outline: none;
-        }
-        #volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 12px; height: 12px;
-            border-radius: 50%; background: rgba(255,255,255,0.7); cursor: pointer;
-        }
         #shuffle-btn.active, #repeat-btn.active { color: var(--accent-primary); }
         
         /* --- 8. SEARCH PAGE --- */
@@ -719,13 +711,18 @@
         /* When chat room is open — hide app header + bottom nav, show full height */
         body.chat-room-open #app-header { display: none !important; }
         body.chat-room-open #bottom-nav { display: none !important; }
-        body.chat-room-open #mini-player { bottom: 0px; border-radius: 0; left: 0; right: 0; }
-        body.chat-room-open #app-content { padding-bottom: 0 !important; }
+        /* Float mini-player ABOVE the input bar (never covers the textarea).
+           --chat-input-h is kept in sync with the real input-bar height via JS. */
+        body.chat-room-open #mini-player {
+            bottom: calc(var(--chat-input-h, 64px) + 10px);
+            left: 10px; right: 10px; border-radius: 16px;
+        }
+        body.chat-room-open #app-content { padding-bottom: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
         /* Chat room fills entire viewport */
         body.chat-room-open #chat-page { height: 100vh; height: 100dvh; }
         body.chat-room-open #chat-room-view {
             height: 100vh; height: 100dvh;
-            padding: 0 20px;
+            padding: 0 10px;
         }
         /* Input bar sticks to bottom above nothing */
         body.chat-room-open #chat-input-bar {
@@ -872,6 +869,106 @@
         }
         #chat-emoji-picker .emoji-pick:active { background: rgba(128,128,128,.15); }
         /* ─── END CHAT VISUAL POLISH ─── */
+
+        /* ═══════════════ CHAT HEADER → CONTACT INFO ═══════════════ */
+        #chat-room-header-info {
+            display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;
+            cursor: pointer; padding: 4px 6px; margin: -4px -6px; border-radius: 10px;
+            transition: background .15s;
+        }
+        #chat-room-header-info:active { background: rgba(128,128,128,.1); }
+        #chat-room-header-chevron { color: var(--text-secondary); font-size: 20px; flex-shrink: 0; }
+
+        /* Image attach + preview inside input bar */
+        #chat-attach-img-btn { background:none;border:none;color:var(--accent-primary);cursor:pointer;display:flex;align-items:center;flex-shrink:0; }
+        #chat-attach-img-btn .material-icons { font-size: 20px; }
+
+        /* Image message bubble */
+        .chat-img-msg { max-width: 200px; border-radius: 14px; overflow: hidden; cursor: pointer; display: block; margin-top: 2px; }
+        .chat-img-msg img { width: 100%; display: block; object-fit: cover; }
+        .chat-msg-wrap .chat-bubble:has(.chat-img-msg) { padding: 4px; background: transparent !important; }
+        .chat-msg-wrap.sent .chat-bubble:has(.chat-img-msg) { background: transparent !important; }
+
+        /* Full-screen image lightbox */
+        #chat-img-lightbox {
+            position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 10005;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        #chat-img-lightbox.visible { display: flex; }
+        #chat-img-lightbox img { max-width: 100%; max-height: 85vh; border-radius: 8px; }
+        #chat-img-lightbox-close {
+            position: absolute; top: 20px; right: 18px; width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,.12); border: none; color: #fff; display: flex; align-items: center;
+            justify-content: center; cursor: pointer;
+        }
+
+        /* ═══════════════ CONTACT INFO PANEL ═══════════════ */
+        #chat-info-panel {
+            position: fixed; inset: 0; z-index: 10002; background: var(--bg-primary);
+            transform: translateX(100%); transition: transform .35s cubic-bezier(0.32,0.72,0,1);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        #chat-info-panel.visible { transform: translateX(0); }
+        #chat-info-header {
+            display: flex; align-items: center; gap: 14px; padding: 16px 16px;
+            border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+        }
+        #chat-info-header .back-btn { background:none;border:none;color:var(--text-primary);cursor:pointer;display:flex;align-items:center; }
+        #chat-info-body { flex: 1; overflow-y: auto; padding: 0 20px 40px; }
+        .cip-avatar-wrap { text-align: center; padding: 28px 0 18px; }
+        .cip-avatar {
+            width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 12px;
+            background: linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+            display: flex; align-items: center; justify-content: center; color: #fff;
+            font-size: 34px; font-weight: 700; overflow: hidden;
+        }
+        .cip-name { font-size: 20px; font-weight: 800; }
+        .cip-status { font-size: 13px; color: var(--accent-primary); margin-top: 4px; }
+        .cip-actions { display: flex; justify-content: center; gap: 28px; padding: 4px 0 24px; }
+        .cip-action { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .cip-action-icon {
+            width: 50px; height: 50px; border-radius: 50%; background: var(--bg-secondary);
+            display: flex; align-items: center; justify-content: center; color: var(--accent-primary);
+        }
+        .cip-action span:last-child { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+        .cip-section { padding: 6px 0; border-top: 8px solid var(--bg-primary); }
+        .cip-list-item {
+            display: flex; align-items: center; gap: 14px; padding: 13px 2px; cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .cip-list-item .material-icons:first-child { color: var(--text-secondary); font-size: 21px; }
+        .cip-list-item-text { flex: 1; min-width: 0; }
+        .cip-list-item-title { font-size: 14.5px; font-weight: 600; }
+        .cip-list-item-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+        .cip-list-item.danger .cip-list-item-title { color: #dc3545; }
+        .cip-list-item.danger .material-icons:first-child { color: #dc3545; }
+
+        /* Media / Songs / Links tabs */
+        .cip-tabs { display: flex; gap: 4px; padding: 14px 0 10px; border-bottom: 1px solid var(--border-color); }
+        .cip-tab {
+            flex: 1; text-align: center; padding: 8px 4px; font-size: 12.5px; font-weight: 700;
+            color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent;
+        }
+        .cip-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+        .cip-tab-panel { display: none; padding-top: 12px; }
+        .cip-tab-panel.active { display: block; }
+        .cip-media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .cip-media-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer; }
+        .cip-empty-mini { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 30px 0; }
+
+        /* Wallpaper swatches */
+        .cip-swatch-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 6px 0 4px; }
+        .cip-swatch { width: 100%; aspect-ratio: 1; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .cip-swatch.active { border-color: var(--text-primary); }
+        /* ─── END CONTACT INFO PANEL ─── */
+
+        /* ═══════════════ INLINE UP-NEXT STRIP (full player) ═══════════════ */
+        #fp-upnext-strip { margin-top: 14px; }
+        .fp-upnext-card { flex-shrink: 0; width: 64px; text-align: center; cursor: pointer; }
+        .fp-upnext-card img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; margin-bottom: 4px; }
+        .fp-upnext-title { font-size: 11px; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fp-upnext-artist { font-size: 10px; color: rgba(255,255,255,.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* ─── END UP-NEXT STRIP CSS ─── */
         :root {
             --dyn-primary: #8A4FFF;
             --dyn-secondary: #5899FF;
@@ -1359,7 +1456,7 @@
                     <!-- Search friends to chat -->
                     <div id="chat-friends-search-wrap" style="margin-bottom:16px;display:flex;align-items:center;gap:8px;background:var(--bg-secondary);border-radius:12px;padding:10px 14px;">
                         <span class="material-icons" style="color:var(--text-secondary);font-size:20px;">search</span>
-                        <input type="text" id="chat-friend-search-input" placeholder="Search friends..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-size:14px;font-family:inherit;">
+                        <input type="text" id="chat-friend-search-input" placeholder="Search friends..." style="flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text-primary);font-size:14px;font-family:inherit;">
                     </div>
                     <div id="chat-conversations-list">
                         <div id="chat-empty-state" style="text-align:center;padding:50px 20px;color:var(--text-secondary);">
@@ -1375,10 +1472,13 @@
                         <button id="chat-back-btn" style="background:none;border:none;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;padding:4px;">
                             <span class="material-icons">arrow_back</span>
                         </button>
-                        <div id="chat-room-avatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden;"></div>
-                        <div style="flex:1;min-width:0;">
-                            <div id="chat-room-name" style="font-size:16px;font-weight:700;"></div>
-                            <div id="chat-room-status" style="font-size:12px;color:var(--accent-primary);"></div>
+                        <div id="chat-room-header-info">
+                            <div id="chat-room-avatar" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden;"></div>
+                            <div style="flex:1;min-width:0;">
+                                <div id="chat-room-name" style="font-size:16px;font-weight:700;"></div>
+                                <div id="chat-room-status" style="font-size:12px;color:var(--accent-primary);"></div>
+                            </div>
+                            <span id="chat-room-header-chevron" class="material-icons">chevron_right</span>
                         </div>
                     </div>
                     <div id="chat-messages-container" style="flex:1;overflow-y:auto;padding:12px 0;display:flex;flex-direction:column;gap:2px;"></div>
@@ -1387,7 +1487,11 @@
                             <span class="material-icons">sentiment_satisfied_alt</span>
                         </button>
                         <div style="flex:1;background:var(--bg-secondary);border-radius:22px;padding:10px 16px;border:1.5px solid var(--border-color);display:flex;align-items:flex-end;gap:8px;">
-                            <textarea id="chat-message-input" placeholder="Message..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-family:inherit;font-size:15px;resize:none;max-height:100px;line-height:1.4;" rows="1"></textarea>
+                            <textarea id="chat-message-input" placeholder="Message..." style="flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text-primary);font-family:inherit;font-size:15px;resize:none;max-height:100px;line-height:1.4;" rows="1"></textarea>
+                            <button id="chat-attach-img-btn" title="Share a photo">
+                                <span class="material-icons">image</span>
+                            </button>
+                            <input type="file" id="chat-img-input" accept="image/*" style="display:none;">
                             <button id="chat-attach-song-btn" style="background:none;border:none;color:var(--accent-primary);cursor:pointer;display:flex;align-items:center;flex-shrink:0;" title="Share playing song">
                                 <span class="material-icons" style="font-size:20px;">music_note</span>
                             </button>
@@ -1623,6 +1727,107 @@
         </nav>
     </div>
 
+    <!-- Chat image lightbox -->
+    <div id="chat-img-lightbox">
+        <button id="chat-img-lightbox-close"><span class="material-icons">close</span></button>
+        <img id="chat-img-lightbox-img" src="" alt="Photo">
+    </div>
+
+    <!-- Chat Contact Info panel -->
+    <div id="chat-info-panel">
+        <div id="chat-info-header">
+            <button class="back-btn" id="chat-info-back-btn"><span class="material-icons">arrow_back</span></button>
+            <span style="font-size:17px;font-weight:700;">Contact Info</span>
+        </div>
+        <div id="chat-info-body">
+            <div class="cip-avatar-wrap">
+                <div class="cip-avatar" id="cip-avatar"></div>
+                <div class="cip-name" id="cip-name"></div>
+                <div class="cip-status" id="cip-status"></div>
+            </div>
+            <div class="cip-actions">
+                <div class="cip-action" id="cip-view-profile-btn">
+                    <span class="cip-action-icon"><span class="material-icons">person</span></span>
+                    <span>Profile</span>
+                </div>
+                <div class="cip-action" id="cip-mute-btn">
+                    <span class="cip-action-icon"><span class="material-icons" id="cip-mute-icon">notifications</span></span>
+                    <span id="cip-mute-label">Mute</span>
+                </div>
+                <div class="cip-action" id="cip-search-btn">
+                    <span class="cip-action-icon"><span class="material-icons">search</span></span>
+                    <span>Search</span>
+                </div>
+            </div>
+
+            <div class="cip-section">
+                <div class="cip-list-item" id="cip-theme-item">
+                    <span class="material-icons">palette</span>
+                    <div class="cip-list-item-text">
+                        <div class="cip-list-item-title">Chat Theme</div>
+                        <div class="cip-list-item-sub" id="cip-theme-sub">Default</div>
+                    </div>
+                    <span class="material-icons" style="font-size:20px;color:var(--text-secondary);">chevron_right</span>
+                </div>
+                <div id="cip-theme-swatches" style="display:none;">
+                    <div class="cip-swatch-grid" id="cip-swatch-grid"></div>
+                </div>
+                <div class="cip-list-item" id="cip-privacy-item">
+                    <span class="material-icons">lock</span>
+                    <div class="cip-list-item-text">
+                        <div class="cip-list-item-title">Privacy &amp; Safety</div>
+                        <div class="cip-list-item-sub">Block, report, disappearing messages</div>
+                    </div>
+                    <span class="material-icons" style="font-size:20px;color:var(--text-secondary);">chevron_right</span>
+                </div>
+                <div id="cip-privacy-options" style="display:none;">
+                    <div class="cip-list-item">
+                        <span class="material-icons">timer</span>
+                        <div class="cip-list-item-text">
+                            <div class="cip-list-item-title">Disappearing Messages</div>
+                            <div class="cip-list-item-sub" id="cip-disappear-sub">Off</div>
+                        </div>
+                        <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;">
+                            <input type="checkbox" id="cip-disappear-toggle" style="opacity:0;width:0;height:0;">
+                            <span id="cip-disappear-slider" style="position:absolute;inset:0;background:var(--border-color);border-radius:22px;transition:.2s;"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cip-section">
+                <div class="cip-tabs">
+                    <div class="cip-tab active" data-tab="media">Media</div>
+                    <div class="cip-tab" data-tab="songs">Songs</div>
+                    <div class="cip-tab" data-tab="links">Links</div>
+                </div>
+                <div class="cip-tab-panel active" data-panel="media">
+                    <div class="cip-media-grid" id="cip-media-grid"></div>
+                    <div class="cip-empty-mini" id="cip-media-empty">No photos shared yet</div>
+                </div>
+                <div class="cip-tab-panel" data-panel="songs">
+                    <div id="cip-songs-list"></div>
+                    <div class="cip-empty-mini" id="cip-songs-empty">No songs shared yet</div>
+                </div>
+                <div class="cip-tab-panel" data-panel="links">
+                    <div id="cip-links-list"></div>
+                    <div class="cip-empty-mini" id="cip-links-empty">No links shared yet</div>
+                </div>
+            </div>
+
+            <div class="cip-section" style="padding-top:12px;">
+                <div class="cip-list-item" id="cip-clear-chat-btn">
+                    <span class="material-icons">delete_sweep</span>
+                    <div class="cip-list-item-text"><div class="cip-list-item-title">Clear Chat</div></div>
+                </div>
+                <div class="cip-list-item danger" id="cip-block-btn">
+                    <span class="material-icons">block</span>
+                    <div class="cip-list-item-text"><div class="cip-list-item-title">Block User</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="full-player">
         <!-- Dynamic blurred background -->
         <div id="fp-bg">
@@ -1680,15 +1885,12 @@
                     <span id="next-btn" class="material-icons">skip_next</span>
                     <span id="repeat-btn" class="material-icons">repeat</span>
                 </div>
-                <div id="fp-queue-row" style="display:flex;align-items:center;justify-content:center;margin-top:6px;">
-                    <button id="open-queue-btn" style="background:none;border:none;color:var(--text-secondary);display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;cursor:pointer;padding:6px 12px;">
-                        <span class="material-icons" style="font-size:18px;">queue_music</span> Up Next
-                    </button>
-                </div>
-                <div id="fp-volume-row">
-                    <span class="material-icons">volume_down</span>
-                    <input type="range" id="volume-slider" min="0" max="100" value="100">
-                    <span class="material-icons">volume_up</span>
+                <div id="fp-upnext-strip">
+                    <div id="fp-upnext-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;">Up Next</span>
+                        <button id="open-queue-btn" style="background:none;border:none;color:var(--accent-primary);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:2px;padding:4px;">See all<span class="material-icons" style="font-size:16px;">chevron_right</span></button>
+                    </div>
+                    <div id="fp-upnext-scroll" class="carousel-container" style="display:flex;gap:12px;"></div>
                 </div>
             </div>
         </div>
@@ -1896,9 +2098,9 @@
                 <span class="material-icons close-btn">close</span>
             </div>
             <div style="display:flex;align-items:center;gap:8px;background:var(--bg-primary);border:1.5px solid var(--border-color);border-radius:12px;padding:10px 14px;margin-bottom:16px;">
-                <span class="material-icons" style="color:var(--text-secondary);">search</span>
-                <input type="text" id="find-friend-input" placeholder="Search by name or ID..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-size:15px;font-family:inherit;">
-                <button id="find-friend-search-btn" style="background:var(--accent-primary);color:white;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;">Search</button>
+                <span class="material-icons" style="color:var(--text-secondary);flex-shrink:0;">search</span>
+                <input type="text" id="find-friend-input" placeholder="Search by name or ID..." style="flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text-primary);font-size:15px;font-family:inherit;">
+                <button id="find-friend-search-btn" style="flex-shrink:0;background:var(--accent-primary);color:white;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;">Search</button>
             </div>
             <div id="find-friend-results"></div>
         </div>
@@ -1947,6 +2149,7 @@
         setDoc, 
         getDoc, 
         updateDoc,
+        deleteDoc,
         collection,
         getDocs,
         addDoc,
@@ -2727,6 +2930,7 @@
                 
                 togglePlayPause(true);
                 updateMediaSession(song);
+                renderFpUpNextStrip();
                 if ($('#queue-modal').classList.contains('visible')) renderUpNextList();
             }
 
@@ -2843,6 +3047,26 @@
                 renderUpNextList();
             }
 
+            // Inline "Up Next" strip shown right in the full player (replaces the old volume row)
+            function renderFpUpNextStrip() {
+                const scroll = document.getElementById('fp-upnext-scroll');
+                if (!scroll) return;
+                const upcoming = currentQueue.slice(currentIndex + 1, currentIndex + 1 + 12);
+                if (!upcoming.length) {
+                    scroll.innerHTML = '<p style="color:rgba(255,255,255,.4);font-size:12px;padding:4px 0;">Queue will auto-continue…</p>';
+                    return;
+                }
+                scroll.innerHTML = upcoming.map((s, i) => `
+                    <div class="fp-upnext-card" data-idx="${currentIndex + 1 + i}">
+                        <img src="${s.img || 'https://placehold.co/64x64/1E1E1E/fff?text=M'}" onerror="this.src='https://placehold.co/64x64/1E1E1E/fff?text=M'">
+                        <div class="fp-upnext-title">${s.title}</div>
+                        <div class="fp-upnext-artist">${s.artist || ''}</div>
+                    </div>`).join('');
+                scroll.querySelectorAll('.fp-upnext-card').forEach(card => {
+                    card.addEventListener('click', () => playQueueIndex(parseInt(card.dataset.idx, 10)));
+                });
+            }
+
             function renderUpNextList() {
                 const list = $('#queue-list');
                 if (!list) return;
@@ -2903,6 +3127,7 @@
                         dragIdx = swapIdx;
                         startY = y;
                         renderUpNextList();
+                        renderFpUpNextStrip();
                         dragRow = list.querySelector(`.list-item[data-idx="${dragIdx}"] .queue-drag-handle`)?.closest('.list-item') || null;
                         if (dragRow) dragRow.classList.add('dragging');
                     }, { passive: true });
@@ -4687,11 +4912,27 @@ audioPlayer.addEventListener('ended', () => {
             let _activeChatUid = null;
             let _chatUnsubscribe = null;
             let _chatFriendName = '';
+            let _chatFriendPhoto = null;
             let _renderedMsgIds = new Set();
+            let _currentChatMessages = []; // cache for Contact Info → media/songs/links tabs
             // ✅ Track last-read timestamp per chat (persisted in localStorage)
             let _chatLastReadTime = (() => {
                 try { return JSON.parse(localStorage.getItem('chatLastRead') || '{}'); } catch(e) { return {}; }
             })();
+
+            // ── Keep #mini-player floating just above the (variable-height) input bar ──
+            function syncChatInputHeight() {
+                const bar = document.getElementById('chat-input-bar');
+                if (!bar) return;
+                document.documentElement.style.setProperty('--chat-input-h', bar.offsetHeight + 'px');
+            }
+            window.addEventListener('resize', syncChatInputHeight);
+            if (window.ResizeObserver) {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const bar = document.getElementById('chat-input-bar');
+                    if (bar) new ResizeObserver(syncChatInputHeight).observe(bar);
+                });
+            }
 
             function initChatPage() {
                 // Load conversations list from friends
@@ -4704,6 +4945,8 @@ audioPlayer.addEventListener('ended', () => {
                     if (_typingUnsubscribe) { _typingUnsubscribe(); _typingUnsubscribe = null; }
                     if (_activeChatUid) setTypingState(getChatId(currentUser.uid, _activeChatUid), false);
                     _activeChatUid = null;
+                    resetChatTheme();
+                    closeChatInfoPanel();
                     // ✅ Remove fullscreen mode
                     document.body.classList.remove('chat-room-open');
                     const listView = $('#chat-list-view');
@@ -4732,6 +4975,7 @@ audioPlayer.addEventListener('ended', () => {
                     msgInput.addEventListener('input', () => {
                         msgInput.style.height = 'auto';
                         msgInput.style.height = Math.min(msgInput.scrollHeight, 100) + 'px';
+                        syncChatInputHeight();
                         // ── typing indicator: mark typing now, clear after 1.5s idle ──
                         if (_activeChatUid) {
                             const chatId = getChatId(currentUser.uid, _activeChatUid);
@@ -4747,6 +4991,24 @@ audioPlayer.addEventListener('ended', () => {
                 if (emojiBtn) emojiBtn.addEventListener('click', () => toggleEmojiPicker());
                 const shareSongBtn = $('#chat-attach-song-btn');
                 if (shareSongBtn) shareSongBtn.addEventListener('click', shareSongInChat);
+
+                // ✅ Share a photo in chat
+                const attachImgBtn = $('#chat-attach-img-btn');
+                const chatImgInput = $('#chat-img-input');
+                if (attachImgBtn && chatImgInput) {
+                    attachImgBtn.addEventListener('click', () => chatImgInput.click());
+                    chatImgInput.addEventListener('change', e => {
+                        const file = e.target.files[0];
+                        if (file) sendChatImage(file);
+                        chatImgInput.value = '';
+                    });
+                }
+
+                // ✅ Tap header name/avatar → Contact Info panel
+                const headerInfo = $('#chat-room-header-info');
+                if (headerInfo) headerInfo.addEventListener('click', openChatInfoPanel);
+
+                initChatInfoPanel();
 
                 // Friend search in chat list
                 const chatSearch = $('#chat-friend-search-input');
@@ -4971,6 +5233,7 @@ audioPlayer.addEventListener('ended', () => {
 
                 // ✅ FULLSCREEN: hide header + bottom nav
                 document.body.classList.add('chat-room-open');
+                requestAnimationFrame(syncChatInputHeight);
 
                 const nameEl = $('#chat-room-name');
                 const statusEl = $('#chat-room-status');
@@ -4990,6 +5253,9 @@ audioPlayer.addEventListener('ended', () => {
                 // Mark messages as read
                 _chatLastReadTime[friendUid] = Date.now();
                 try { localStorage.setItem('chatLastRead', JSON.stringify(_chatLastReadTime)); } catch(e){}
+
+                // ✅ Apply this chat's saved theme (if any)
+                applyChatTheme(getChatId(currentUser.uid, friendUid));
 
                 // Subscribe to messages
                 if (_chatUnsubscribe) { _chatUnsubscribe(); _chatUnsubscribe = null; }
@@ -5041,6 +5307,7 @@ audioPlayer.addEventListener('ended', () => {
             function renderChatMessages(messages) {
                 const container = $('#chat-messages-container');
                 if (!container) return;
+                _currentChatMessages = messages; // cache for Contact Info → media/songs/links tabs
                 if (!messages.length) {
                     container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-secondary);">
                         <span class="material-icons" style="font-size:48px;opacity:.3;display:block;margin-bottom:12px;">chat_bubble_outline</span>
@@ -5087,8 +5354,10 @@ audioPlayer.addEventListener('ended', () => {
                             </div>
                             <span class="material-icons" style="color:var(--accent-primary);font-size:20px;">play_circle</span>
                         </div>`;
+                    } else if (msg.type === 'image' && msg.imageBase64) {
+                        bubbleContent = `<div class="chat-img-msg" data-msg-id="${msg.id}"><img src="${msg.imageBase64}" loading="lazy" alt="Photo"></div>`;
                     } else {
-                        bubbleContent = `${msg.text || ''}`;
+                        bubbleContent = `${escapeHtml(msg.text || '')}`;
                     }
 
                     return `${dateDiv}${unreadDivider}<div class="chat-msg-wrap ${side}${!_renderedMsgIds.has(msg.id) ? ' msg-new' : ''}" data-msg-id="${msg.id}">
@@ -5116,7 +5385,35 @@ audioPlayer.addEventListener('ended', () => {
                         if (song) playSongs([song.id], 0);
                     });
                 });
+
+                // ✅ Image tap → fullscreen lightbox
+                container.querySelectorAll('.chat-img-msg img').forEach(img => {
+                    img.addEventListener('click', () => openChatImageLightbox(img.src));
+                });
             }
+
+            function escapeHtml(str) {
+                const d = document.createElement('div');
+                d.textContent = str;
+                return d.innerHTML;
+            }
+
+            function openChatImageLightbox(src) {
+                const box = $('#chat-img-lightbox');
+                const img = $('#chat-img-lightbox-img');
+                if (!box || !img) return;
+                img.src = src;
+                box.classList.add('visible');
+            }
+
+            (function initChatLightbox() {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const box = $('#chat-img-lightbox');
+                    const closeBtn = $('#chat-img-lightbox-close');
+                    if (closeBtn) closeBtn.addEventListener('click', () => box.classList.remove('visible'));
+                    if (box) box.addEventListener('click', e => { if (e.target === box) box.classList.remove('visible'); });
+                });
+            })();
 
             // ✅ Also upgrade conversations list with unread count
             async function getUnreadCount(friendUid) {
@@ -5134,6 +5431,23 @@ audioPlayer.addEventListener('ended', () => {
                     });
                     return count;
                 } catch(e) { return 0; }
+            }
+
+            // ✅ Send a photo in chat (reuses the same resize-to-base64 helper as profile photo upload)
+            async function sendChatImage(file) {
+                if (!file || !_activeChatUid) return;
+                showToast('Sending photo...');
+                try {
+                    const base64 = await resizeImageToBase64(file, 800);
+                    const chatId = getChatId(currentUser.uid, _activeChatUid);
+                    await addDoc(collection(db, 'chats', chatId, 'messages'), {
+                        senderId: currentUser.uid,
+                        senderName: userData.name || 'User',
+                        timestamp: Timestamp.now(),
+                        type: 'image',
+                        imageBase64: base64
+                    });
+                } catch(e) { showToast('Send failed: ' + e.message); }
             }
 
             async function sendChatMessage() {
@@ -5171,6 +5485,259 @@ audioPlayer.addEventListener('ended', () => {
                     });
                     showToast('🎵 Song shared in chat!');
                 } catch(e) { showToast('Share failed: ' + e.message); }
+            }
+
+            // ═══════════════════════════════════════════════════════════════
+            // CONTACT INFO PANEL — tap the chat header name/avatar to open
+            // ═══════════════════════════════════════════════════════════════
+            const CIP_SWATCHES = [
+                { id: 'default', c1: '#6A11CB', c2: '#2575FC' },
+                { id: 'sunset',  c1: '#FF512F', c2: '#F09819' },
+                { id: 'ocean',   c1: '#2193b0', c2: '#6dd5ed' },
+                { id: 'rose',    c1: '#eb3349', c2: '#f45c43' },
+                { id: 'forest',  c1: '#11998e', c2: '#38ef7d' },
+                { id: 'mono',    c1: '#485563', c2: '#29323c' }
+            ];
+
+            function getChatPrefs(chatId) {
+                try { return JSON.parse(localStorage.getItem('chatPrefs_' + chatId) || '{}'); } catch(e) { return {}; }
+            }
+            function setChatPrefs(chatId, patch) {
+                const prefs = { ...getChatPrefs(chatId), ...patch };
+                try { localStorage.setItem('chatPrefs_' + chatId, JSON.stringify(prefs)); } catch(e) {}
+                return prefs;
+            }
+            function applyChatTheme(chatId) {
+                const prefs = getChatPrefs(chatId);
+                const swatch = CIP_SWATCHES.find(s => s.id === prefs.theme) || CIP_SWATCHES[0];
+                const roomView = $('#chat-room-view');
+                if (roomView) {
+                    roomView.style.setProperty('--accent-primary', swatch.c1);
+                    roomView.style.setProperty('--accent-secondary', swatch.c2);
+                }
+            }
+            function resetChatTheme() {
+                const roomView = $('#chat-room-view');
+                if (roomView) { roomView.style.removeProperty('--accent-primary'); roomView.style.removeProperty('--accent-secondary'); }
+            }
+
+            function openChatInfoPanel() {
+                if (!_activeChatUid) return;
+                const panel = $('#chat-info-panel');
+                if (!panel) return;
+
+                // Name + status (mirror what's already shown in the chat header)
+                $('#cip-name').textContent = _chatFriendName || 'User';
+                const statusEl = $('#chat-room-status');
+                $('#cip-status').textContent = statusEl ? statusEl.textContent : '';
+
+                // Avatar — reuse whatever's already rendered in the chat header
+                const headerAvatar = $('#chat-room-avatar');
+                const cipAvatar = $('#cip-avatar');
+                if (cipAvatar) {
+                    cipAvatar.innerHTML = headerAvatar && headerAvatar.querySelector('img')
+                        ? `<img src="${headerAvatar.querySelector('img').src}" style="width:100%;height:100%;object-fit:cover;">`
+                        : (_chatFriendName || '?').charAt(0).toUpperCase();
+                }
+
+                const chatId = getChatId(currentUser.uid, _activeChatUid);
+                const prefs = getChatPrefs(chatId);
+
+                // Mute state
+                const muted = !!prefs.muted;
+                $('#cip-mute-icon').textContent = muted ? 'notifications_off' : 'notifications';
+                $('#cip-mute-label').textContent = muted ? 'Unmute' : 'Mute';
+
+                // Theme swatches
+                const swatchGrid = $('#cip-swatch-grid');
+                if (swatchGrid && !swatchGrid.dataset.built) {
+                    swatchGrid.innerHTML = CIP_SWATCHES.map(s =>
+                        `<div class="cip-swatch" data-theme="${s.id}" style="background:linear-gradient(135deg,${s.c1},${s.c2});"></div>`
+                    ).join('');
+                    swatchGrid.dataset.built = '1';
+                    swatchGrid.querySelectorAll('.cip-swatch').forEach(sw => {
+                        sw.addEventListener('click', () => {
+                            const cid = getChatId(currentUser.uid, _activeChatUid);
+                            setChatPrefs(cid, { theme: sw.dataset.theme });
+                            applyChatTheme(cid);
+                            swatchGrid.querySelectorAll('.cip-swatch').forEach(x => x.classList.remove('active'));
+                            sw.classList.add('active');
+                            const chosen = CIP_SWATCHES.find(s => s.id === sw.dataset.theme);
+                            $('#cip-theme-sub').textContent = chosen && chosen.id !== 'default'
+                                ? chosen.id.charAt(0).toUpperCase() + chosen.id.slice(1) : 'Default';
+                        });
+                    });
+                }
+                const activeThemeId = prefs.theme || 'default';
+                swatchGrid.querySelectorAll('.cip-swatch').forEach(sw => sw.classList.toggle('active', sw.dataset.theme === activeThemeId));
+                const activeSwatch = CIP_SWATCHES.find(s => s.id === activeThemeId);
+                $('#cip-theme-sub').textContent = activeSwatch && activeSwatch.id !== 'default'
+                    ? activeSwatch.id.charAt(0).toUpperCase() + activeSwatch.id.slice(1) : 'Default';
+
+                // Disappearing messages toggle
+                const disTog = $('#cip-disappear-toggle');
+                if (disTog) disTog.checked = !!prefs.disappearing;
+                updateDisappearUI(!!prefs.disappearing);
+
+                // Media / Songs / Links tabs — built from cached messages of this chat
+                buildCipTabs();
+
+                panel.classList.add('visible');
+            }
+
+            function closeChatInfoPanel() {
+                $('#chat-info-panel').classList.remove('visible');
+                $('#cip-theme-swatches').style.display = 'none';
+                $('#cip-privacy-options').style.display = 'none';
+            }
+
+            function updateDisappearUI(on) {
+                $('#cip-disappear-sub').textContent = on ? 'On · 7 days' : 'Off';
+                $('#cip-disappear-slider').style.background = on ? 'var(--accent-primary)' : 'var(--border-color)';
+                $('#cip-disappear-slider').style.setProperty('--knob', on ? '18px' : '2px');
+            }
+
+            function buildCipTabs() {
+                const msgs = _currentChatMessages || [];
+                // Media (images)
+                const imgs = msgs.filter(m => m.type === 'image' && m.imageBase64);
+                const mediaGrid = $('#cip-media-grid');
+                mediaGrid.innerHTML = imgs.slice().reverse().map(m => `<img src="${m.imageBase64}" data-src="${m.imageBase64}">`).join('');
+                $('#cip-media-empty').style.display = imgs.length ? 'none' : 'block';
+                mediaGrid.querySelectorAll('img').forEach(img => img.addEventListener('click', () => openChatImageLightbox(img.dataset.src)));
+
+                // Songs
+                const songs = msgs.filter(m => m.type === 'song' && m.song);
+                const songsList = $('#cip-songs-list');
+                songsList.innerHTML = songs.slice().reverse().map(m => `
+                    <div class="chat-song-card" style="margin-top:8px;" data-song-id="${m.song.id}">
+                        <img src="${m.song.img || 'https://placehold.co/40x40/1E1E1E/fff?text=M'}">
+                        <div class="chat-song-card-info">
+                            <div class="chat-song-card-title">${m.song.title}</div>
+                            <div class="chat-song-card-artist">${m.song.artist || ''}</div>
+                        </div>
+                        <span class="material-icons" style="color:var(--accent-primary);font-size:20px;">play_circle</span>
+                    </div>`).join('');
+                $('#cip-songs-empty').style.display = songs.length ? 'none' : 'block';
+                songsList.querySelectorAll('.chat-song-card[data-song-id]').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const song = getSongById(card.dataset.songId);
+                        if (song) playSongs([song.id], 0);
+                    });
+                });
+
+                // Links (simple URL detection inside text messages)
+                const urlRe = /(https?:\/\/[^\s]+)/gi;
+                const links = [];
+                msgs.forEach(m => { if (m.type !== 'song' && m.type !== 'image' && m.text) {
+                    const found = m.text.match(urlRe);
+                    if (found) found.forEach(u => links.push(u));
+                }});
+                const linksList = $('#cip-links-list');
+                linksList.innerHTML = links.slice().reverse().map(u => `
+                    <div class="cip-list-item" style="border-bottom:1px solid var(--border-color);" onclick="window.open('${u.replace(/'/g,"")}','_blank')">
+                        <span class="material-icons">link</span>
+                        <div class="cip-list-item-text"><div class="cip-list-item-title" style="word-break:break-all;font-weight:500;">${escapeHtml(u)}</div></div>
+                    </div>`).join('');
+                $('#cip-links-empty').style.display = links.length ? 'none' : 'block';
+            }
+
+            function initChatInfoPanel() {
+                const panel = $('#chat-info-panel');
+                if (!panel || panel.dataset.inited) return;
+                panel.dataset.inited = '1';
+
+                $('#chat-info-back-btn').addEventListener('click', closeChatInfoPanel);
+
+                // View Profile
+                $('#cip-view-profile-btn').addEventListener('click', () => {
+                    if (_activeChatUid) openUserProfileView(_activeChatUid);
+                });
+
+                // Mute toggle
+                $('#cip-mute-btn').addEventListener('click', () => {
+                    if (!_activeChatUid) return;
+                    const chatId = getChatId(currentUser.uid, _activeChatUid);
+                    const prefs = getChatPrefs(chatId);
+                    const nowMuted = !prefs.muted;
+                    setChatPrefs(chatId, { muted: nowMuted });
+                    $('#cip-mute-icon').textContent = nowMuted ? 'notifications_off' : 'notifications';
+                    $('#cip-mute-label').textContent = nowMuted ? 'Unmute' : 'Mute';
+                    showToast(nowMuted ? 'Notifications muted for this chat' : 'Notifications unmuted');
+                });
+
+                // Search in chat (focuses the message list — simple jump-to-top for now)
+                $('#cip-search-btn').addEventListener('click', () => {
+                    closeChatInfoPanel();
+                    showToast('Scroll up to find older messages');
+                    const c = $('#chat-messages-container');
+                    if (c) c.scrollTop = 0;
+                });
+
+                // Chat Theme expand/collapse
+                $('#cip-theme-item').addEventListener('click', () => {
+                    const box = $('#cip-theme-swatches');
+                    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+                });
+
+                // Privacy & Safety expand/collapse
+                $('#cip-privacy-item').addEventListener('click', () => {
+                    const box = $('#cip-privacy-options');
+                    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+                });
+                $('#cip-disappear-toggle').addEventListener('change', e => {
+                    if (!_activeChatUid) return;
+                    const chatId = getChatId(currentUser.uid, _activeChatUid);
+                    setChatPrefs(chatId, { disappearing: e.target.checked });
+                    updateDisappearUI(e.target.checked);
+                    showToast(e.target.checked ? 'Disappearing messages turned on' : 'Disappearing messages turned off');
+                });
+
+                // Tabs
+                panel.querySelectorAll('.cip-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        panel.querySelectorAll('.cip-tab').forEach(t => t.classList.remove('active'));
+                        panel.querySelectorAll('.cip-tab-panel').forEach(p => p.classList.remove('active'));
+                        tab.classList.add('active');
+                        panel.querySelector(`.cip-tab-panel[data-panel="${tab.dataset.tab}"]`).classList.add('active');
+                    });
+                });
+
+                // Clear chat
+                $('#cip-clear-chat-btn').addEventListener('click', async () => {
+                    if (!_activeChatUid) return;
+                    if (!confirm('Clear all messages in this chat? This cannot be undone.')) return;
+                    const chatId = getChatId(currentUser.uid, _activeChatUid);
+                    try {
+                        const snap = await getDocs(collection(db, 'chats', chatId, 'messages'));
+                        await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+                        showToast('Chat cleared');
+                        closeChatInfoPanel();
+                    } catch(e) { showToast('Failed to clear chat: ' + e.message); }
+                });
+
+                // Block user
+                $('#cip-block-btn').addEventListener('click', async () => {
+                    if (!_activeChatUid) return;
+                    if (!confirm(`Block ${_chatFriendName}? They won't be able to message you.`)) return;
+                    try {
+                        const userRef = doc(db, 'users', currentUser.uid);
+                        const blocked = new Set(userData.blockedUsers || []);
+                        blocked.add(_activeChatUid);
+                        await updateDoc(userRef, { blockedUsers: Array.from(blocked) });
+                        userData.blockedUsers = Array.from(blocked);
+                        showToast('User blocked');
+                        closeChatInfoPanel();
+                        $('#chat-back-btn')?.click();
+                    } catch(e) { showToast('Failed to block: ' + e.message); }
+                });
+            }
+
+            // Falls back to a toast if a dedicated profile-view page/function doesn't exist yet
+            function openUserProfileView(uid) {
+                if (typeof window.viewUserProfile === 'function') { window.viewUserProfile(uid); return; }
+                if (typeof window.showUserProfile === 'function') { window.showUserProfile(uid); return; }
+                showToast('Profile view coming soon');
             }
 
             // ── SHARE PLAYLIST — generate shareable URL ──
@@ -6473,7 +7040,7 @@ audioPlayer.addEventListener('ended', () => {
         <div id="collab-add-song-bar" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-color);">
             <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--bg-secondary);border-radius:10px;padding:9px 12px;">
                 <span class="material-icons" style="color:var(--text-secondary);font-size:18px;">search</span>
-                <input type="text" id="collab-add-song-input" placeholder="Search & add songs..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-size:14px;font-family:inherit;">
+                <input type="text" id="collab-add-song-input" placeholder="Search & add songs..." style="flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text-primary);font-size:14px;font-family:inherit;">
             </div>
         </div>
         <div id="collab-add-song-results" style="display:none;max-height:180px;overflow-y:auto;border-bottom:1px solid var(--border-color);"></div>
