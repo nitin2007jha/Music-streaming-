@@ -384,7 +384,7 @@
         /* Header */
         #full-player-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 52px 0 16px; flex-shrink: 0;
+            padding: 52px 0 16px; flex-shrink: 0; position: relative;
         }
         #full-player-header .fp-header-btn {
             width: 38px; height: 38px; border-radius: 50%;
@@ -829,6 +829,49 @@
         .chat-notif-toast .cnt-name { font-size:13px; font-weight:700; }
         .chat-notif-toast .cnt-msg { font-size:12.5px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         /* ─── END CHAT UPGRADE CSS ─── */
+
+        /* ═══════════════ PLAYER UPGRADE: eq animation, queue sheet ═══════════════ */
+        #fp-now-playing-label { display: inline-flex; align-items: center; gap: 8px; }
+        .fp-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+        .fp-eq.hidden { display: none; }
+        .fp-eq span {
+            width: 3px; background: var(--accent-primary); border-radius: 2px;
+            animation: eqBounce 0.9s infinite ease-in-out;
+        }
+        .fp-eq span:nth-child(1) { height: 40%; animation-delay: -0.6s; }
+        .fp-eq span:nth-child(2) { height: 100%; animation-delay: -0.3s; }
+        .fp-eq span:nth-child(3) { height: 60%; animation-delay: 0s; }
+        @keyframes eqBounce { 0%, 100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+
+        #queue-list .list-item { cursor: pointer; transition: background .15s; }
+        #queue-list .list-item.now-playing { background: rgba(138,79,255,.12); border-radius: 10px; }
+        #queue-list .list-item.now-playing h4 { color: var(--accent-primary); }
+        .queue-drag-handle { color: var(--text-secondary); cursor: grab; padding: 6px; touch-action: none; }
+        .queue-drag-handle:active { cursor: grabbing; }
+        #queue-list .list-item.dragging { opacity: .4; }
+        /* ─── END PLAYER UPGRADE CSS ─── */
+
+        /* ═══════════════ CHAT VISUAL POLISH ═══════════════ */
+        /* Subtle dotted wallpaper behind messages — breaks up the flat blank look */
+        #chat-messages-container {
+            background-image: radial-gradient(circle, rgba(128,128,128,.12) 1px, transparent 1px);
+            background-size: 22px 22px;
+            border-radius: 14px;
+        }
+        #chat-room-view { position: relative; }
+
+        #chat-emoji-picker {
+            display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
+            padding: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 16px; margin-bottom: 6px;
+            transform: translateY(8px); opacity: 0; transition: transform .18s ease, opacity .18s ease;
+        }
+        #chat-emoji-picker.visible { transform: translateY(0); opacity: 1; }
+        #chat-emoji-picker .emoji-pick {
+            font-size: 22px; text-align: center; padding: 6px; border-radius: 8px; cursor: pointer; transition: background .12s;
+        }
+        #chat-emoji-picker .emoji-pick:active { background: rgba(128,128,128,.15); }
+        /* ─── END CHAT VISUAL POLISH ─── */
         :root {
             --dyn-primary: #8A4FFF;
             --dyn-secondary: #5899FF;
@@ -1337,14 +1380,17 @@
                             <div id="chat-room-name" style="font-size:16px;font-weight:700;"></div>
                             <div id="chat-room-status" style="font-size:12px;color:var(--accent-primary);"></div>
                         </div>
-                        <button id="chat-share-song-btn" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;" title="Share playing song">
-                            <span class="material-icons">library_music</span>
-                        </button>
                     </div>
                     <div id="chat-messages-container" style="flex:1;overflow-y:auto;padding:12px 0;display:flex;flex-direction:column;gap:2px;"></div>
                     <div id="chat-input-bar" style="display:flex;align-items:flex-end;gap:8px;padding:10px 0;border-top:1px solid var(--border-color);position:sticky;bottom:0;background:var(--bg-primary);">
+                        <button id="chat-emoji-btn" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;width:36px;height:44px;flex-shrink:0;">
+                            <span class="material-icons">sentiment_satisfied_alt</span>
+                        </button>
                         <div style="flex:1;background:var(--bg-secondary);border-radius:22px;padding:10px 16px;border:1.5px solid var(--border-color);display:flex;align-items:flex-end;gap:8px;">
                             <textarea id="chat-message-input" placeholder="Message..." style="flex:1;background:none;border:none;outline:none;color:var(--text-primary);font-family:inherit;font-size:15px;resize:none;max-height:100px;line-height:1.4;" rows="1"></textarea>
+                            <button id="chat-attach-song-btn" style="background:none;border:none;color:var(--accent-primary);cursor:pointer;display:flex;align-items:center;flex-shrink:0;" title="Share playing song">
+                                <span class="material-icons" style="font-size:20px;">music_note</span>
+                            </button>
                         </div>
                         <button id="chat-send-btn" style="width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s;">
                             <span class="material-icons">send</span>
@@ -1553,6 +1599,7 @@
         </div>
 
         <div id="mini-player">
+            <div id="mini-player-capsule" style="position:absolute;top:4px;left:50%;transform:translateX(-50%);width:32px;height:3px;border-radius:2px;background:rgba(255,255,255,.3);"></div>
             <div id="mini-player-song-info">
                 <img id="mini-player-artwork" src="https://placehold.co/50x50/282828/fff?text=M" alt="artwork">
                 <div id="mini-player-text">
@@ -1587,10 +1634,11 @@
         <div id="fp-content">
             <!-- Header -->
             <div id="full-player-header">
+                <div id="fp-drag-capsule" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);width:36px;height:4px;border-radius:3px;background:rgba(255,255,255,.35);"></div>
                 <button class="fp-header-btn" id="collapse-player-btn">
                     <span class="material-icons">keyboard_arrow_down</span>
                 </button>
-                <span id="fp-now-playing-label">Now Playing</span>
+                <span id="fp-now-playing-label">Now Playing <span id="fp-playing-eq" class="fp-eq hidden"><span></span><span></span><span></span></span></span>
                 <button class="fp-header-btn" id="player-options-btn">
                     <span class="material-icons">more_horiz</span>
                 </button>
@@ -1611,7 +1659,7 @@
                 </div>
                 <div class="action-icons">
                     <span class="material-icons like-btn" data-song-id="">favorite_border</span>
-                    <span id="modal-download-song-btn" class="material-icons">download</span>
+                    <span id="fp-quick-download-btn" class="material-icons">download</span>
                     <span id="show-song-info-btn" class="material-icons">album</span>
                 </div>
             </div>
@@ -1631,6 +1679,11 @@
                     <button id="full-player-play-btn" class="play-pause-btn" aria-label="Play" style="width:68px;height:68px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 4px 24px rgba(255,255,255,0.2);transition:transform 0.15s;"><span style="display:inline-block;width:0;height:0;border-top:13px solid transparent;border-bottom:13px solid transparent;border-left:22px solid #000;margin-left:5px;"></span></button>
                     <span id="next-btn" class="material-icons">skip_next</span>
                     <span id="repeat-btn" class="material-icons">repeat</span>
+                </div>
+                <div id="fp-queue-row" style="display:flex;align-items:center;justify-content:center;margin-top:6px;">
+                    <button id="open-queue-btn" style="background:none;border:none;color:var(--text-secondary);display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;cursor:pointer;padding:6px 12px;">
+                        <span class="material-icons" style="font-size:18px;">queue_music</span> Up Next
+                    </button>
                 </div>
                 <div id="fp-volume-row">
                     <span class="material-icons">volume_down</span>
@@ -1655,6 +1708,12 @@
          <div class="modal-content">
             <div class="modal-header"><h3>Options</h3><span class="material-icons close-btn">close</span></div>
             <div id="options-list"></div>
+        </div>
+    </div>
+    <div id="queue-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Up Next</h3><span class="material-icons close-btn">close</span></div>
+            <div id="queue-list" style="max-height:60vh;overflow-y:auto;"></div>
         </div>
     </div>
     <div id="add-to-playlist-modal" class="modal-overlay">
@@ -1999,6 +2058,14 @@
                     } else {
                         _hadRealUser = false;
                         window._manualLogout = false;
+                        // ✅ Shared links (song/playlist/collab) should work without forcing login —
+                        // sign the visitor in anonymously so they can browse/play immediately.
+                        const hasShareParam = /[?&](play|playlist|collab|addFriend)=/.test(location.search);
+                        if (hasShareParam && !window._guestSignInAttempted) {
+                            window._guestSignInAttempted = true;
+                            signInAnonymously(auth).catch(() => doLogoutNow());
+                            return; // onAuthStateChanged fires again once the anonymous session is ready
+                        }
                         doLogoutNow();
                     }
                 });
@@ -2135,6 +2202,7 @@
                 updateClaimButton();
                 await loadDownloadedSongsFromDB();
                 handlePlaylistUrlParam();
+                handlePlaySongUrlParam();
                 handleCollabUrlParam();
                 setupProfileActions();
                 initChatPage();
@@ -2659,6 +2727,7 @@
                 
                 togglePlayPause(true);
                 updateMediaSession(song);
+                if ($('#queue-modal').classList.contains('visible')) renderUpNextList();
             }
 
             // Pure CSS shapes - no font dependency
@@ -2692,6 +2761,8 @@
                     }
                     const _art = document.getElementById('full-player-artwork');
                     if (_art) _art.classList.toggle('playing', shouldPlay);
+                    const _eq = document.getElementById('fp-playing-eq');
+                    if (_eq) _eq.classList.toggle('hidden', !shouldPlay);
                 } catch (error) {
                     console.error("Playback failed:", error);
                     showToast("Could not play song.");
@@ -2724,18 +2795,124 @@
                         nextIndex = 0; // Wapas shuru se
                         console.log("Repeat All active. Looping to start.");
                     } else { 
-                        console.log("Queue finished. Stopping.");
-                        showToast("Queue finished"); 
-                        togglePlayPause(false); 
-                        return; 
+                        // ✅ Queue must NEVER finish — auto-continue instead of stopping.
+                        const extended = extendQueueWithVibeSongs();
+                        if (!extended) {
+                            console.log("No songs available to continue with.");
+                            showToast("No more songs available");
+                            togglePlayPause(false);
+                            return;
+                        }
+                        nextIndex = currentIndex + 1; // now valid — queue just grew
                     }
                 }
 
                 currentIndex = nextIndex;
                 console.log("Loading song at index:", currentIndex);
                 loadSong(currentIndex);
+                renderUpNextList();
             }
 
+            // ── Keeps playback going forever once the current queue/playlist runs out.
+            // Prefers songs by the same artist as what just finished (a "vibe" continuation),
+            // then fills the rest randomly from the catalog. Falls back to allowing repeats
+            // only if literally every song is already queued, so it truly never stops.
+            function extendQueueWithVibeSongs(count = 15) {
+                const pool = allSongs.filter(s => !s.isHidden && !s.isDeleted);
+                if (!pool.length) return false;
+                const existingIds = new Set(currentQueue.map(s => s.id));
+                const lastSong = currentQueue[currentQueue.length - 1];
+                let candidates = pool.filter(s => !existingIds.has(s.id));
+                if (!candidates.length) candidates = pool.filter(s => !lastSong || s.id !== lastSong.id) || pool;
+                const sameArtist = lastSong ? candidates.filter(s => s.artist === lastSong.artist) : [];
+                const rest = candidates.filter(s => !sameArtist.includes(s));
+                for (let i = rest.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [rest[i], rest[j]] = [rest[j], rest[i]]; }
+                const picked = [...sameArtist.slice(0, Math.ceil(count * 0.4)), ...rest].slice(0, count);
+                if (!picked.length) return false;
+                currentQueue.push(...picked);
+                originalQueue.push(...picked);
+                showToast('▶ Continuing with more like this');
+                return true;
+            }
+
+
+            function playQueueIndex(i) {
+                if (i < 0 || i >= currentQueue.length) return;
+                currentIndex = i;
+                loadSong(currentIndex);
+                renderUpNextList();
+            }
+
+            function renderUpNextList() {
+                const list = $('#queue-list');
+                if (!list) return;
+                if (!currentQueue.length) { list.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;">Nothing queued.</p>'; return; }
+
+                list.innerHTML = currentQueue.map((s, i) => {
+                    const isNow = i === currentIndex;
+                    const canDrag = i > currentIndex; // only the "up next" tail can be reordered
+                    return `<div class="list-item ${isNow ? 'now-playing' : ''}" data-idx="${i}">
+                        <img src="${s.img || 'https://placehold.co/44x44/1E1E1E/fff?text=M'}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;margin-right:12px;flex-shrink:0;" onerror="this.src='https://placehold.co/44x44/1E1E1E/fff?text=M'">
+                        <div class="item-info" style="flex:1;min-width:0;">
+                            <h4 style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${isNow ? '▶ ' : ''}${s.title}</h4>
+                            <p style="font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.artist || ''}</p>
+                        </div>
+                        ${canDrag ? '<span class="material-icons queue-drag-handle">drag_indicator</span>' : ''}
+                    </div>`;
+                }).join('');
+
+                // Tap a row (not the drag handle) to jump straight to it
+                list.querySelectorAll('.list-item').forEach(row => {
+                    row.addEventListener('click', e => {
+                        if (e.target.closest('.queue-drag-handle')) return;
+                        playQueueIndex(parseInt(row.dataset.idx, 10));
+                        closeAllModals();
+                    });
+                });
+
+                // Auto-scroll so the currently playing row is visible
+                const nowEl = list.querySelector('.now-playing');
+                if (nowEl) setTimeout(() => nowEl.scrollIntoView({ block: 'center' }), 50);
+
+                initQueueDragReorder(list);
+            }
+
+            // Lightweight touch-based reorder for the "up next" tail only —
+            // long-press the ⠿ handle and drag up/down to swap with a neighbor.
+            function initQueueDragReorder(list) {
+                let dragRow = null, dragIdx = null, startY = 0;
+                list.querySelectorAll('.queue-drag-handle').forEach(handle => {
+                    handle.addEventListener('touchstart', e => {
+                        dragRow = handle.closest('.list-item');
+                        dragIdx = parseInt(dragRow.dataset.idx, 10);
+                        startY = e.touches[0].clientY;
+                        dragRow.classList.add('dragging');
+                    }, { passive: true });
+
+                    handle.addEventListener('touchmove', e => {
+                        if (!dragRow) return;
+                        const y = e.touches[0].clientY;
+                        const dy = y - startY;
+                        const rowHeight = dragRow.offsetHeight || 60;
+                        if (Math.abs(dy) < rowHeight * 0.6) return;
+                        const dir = dy > 0 ? 1 : -1;
+                        const swapIdx = dragIdx + dir;
+                        if (swapIdx <= currentIndex || swapIdx >= currentQueue.length) return;
+                        // swap in the actual queue array (only ever within the up-next tail)
+                        [currentQueue[dragIdx], currentQueue[swapIdx]] = [currentQueue[swapIdx], currentQueue[dragIdx]];
+                        dragIdx = swapIdx;
+                        startY = y;
+                        renderUpNextList();
+                        dragRow = list.querySelector(`.list-item[data-idx="${dragIdx}"] .queue-drag-handle`)?.closest('.list-item') || null;
+                        if (dragRow) dragRow.classList.add('dragging');
+                    }, { passive: true });
+
+                    handle.addEventListener('touchend', () => {
+                        if (dragRow) dragRow.classList.remove('dragging');
+                        dragRow = null; dragIdx = null;
+                    }, { passive: true });
+                });
+            }
 
             function playPrev() {
                 if (audioPlayer.currentTime > 3) { audioPlayer.currentTime = 0; return; }
@@ -3675,6 +3852,12 @@ audioPlayer.addEventListener('ended', () => {
                 $('#next-btn').addEventListener('click', playNext); $('#prev-btn').addEventListener('click', playPrev);
                 $('#shuffle-btn').addEventListener('click', toggleShuffle); $('#repeat-btn').addEventListener('click', cycleRepeatState);
                 $('#show-song-info-btn').addEventListener('click', showSongInfoModal);
+                $('#fp-quick-download-btn').addEventListener('click', () => {
+                    if (currentIndex < 0 || !currentQueue[currentIndex]) { showToast('No song playing.'); return; }
+                    downloadSongForOffline(currentQueue[currentIndex].id);
+                });
+                const openQueueBtn = $('#open-queue-btn');
+                if (openQueueBtn) openQueueBtn.addEventListener('click', () => { renderUpNextList(); showModal('#queue-modal'); });
                 $('#mini-player-song-info').addEventListener('click', () => fullPlayer.classList.add('visible'));
                 $('#collapse-player-btn').addEventListener('click', () => fullPlayer.classList.remove('visible'));
 
@@ -4086,8 +4269,8 @@ audioPlayer.addEventListener('ended', () => {
 
                 $('#modal-like-song-btn').onclick = () => toggleLikeSong(song.id);
                 $('#modal-add-to-playlist-btn').onclick = () => showAddToPlaylistModal(song.id);
-                if (isDownloaded) { const btn = $('#modal-save-song-btn'); if(btn) btn.onclick = () => saveSongToDevice(song.id); }
-                else if (!isDownloading) { const btn = $('#modal-download-song-btn'); if(btn) btn.onclick = () => downloadSongForOffline(song.id); }
+                if (isDownloaded) { const btn = $('#options-list #modal-save-song-btn'); if(btn) btn.onclick = () => saveSongToDevice(song.id); }
+                else if (!isDownloading) { const btn = $('#options-list #modal-download-song-btn'); if(btn) btn.onclick = () => downloadSongForOffline(song.id); }
                 const shareBtn = $('#modal-share-song-btn');
                 if (shareBtn) shareBtn.onclick = () => shareSong(song);
 
@@ -4559,8 +4742,10 @@ audioPlayer.addEventListener('ended', () => {
                     });
                 }
 
-                // Share song in chat
-                const shareSongBtn = $('#chat-share-song-btn');
+                // Emoji quick-picker
+                const emojiBtn = $('#chat-emoji-btn');
+                if (emojiBtn) emojiBtn.addEventListener('click', () => toggleEmojiPicker());
+                const shareSongBtn = $('#chat-attach-song-btn');
                 if (shareSongBtn) shareSongBtn.addEventListener('click', shareSongInChat);
 
                 // Friend search in chat list
@@ -4727,6 +4912,35 @@ audioPlayer.addEventListener('ended', () => {
                 requestAnimationFrame(() => toast.classList.add('visible'));
                 clearTimeout(_notifToastTimer);
                 _notifToastTimer = setTimeout(() => toast.classList.remove('visible'), 4000);
+            }
+
+            function toggleEmojiPicker() {
+                let picker = document.getElementById('chat-emoji-picker');
+                if (picker) { picker.remove(); return; }
+                const EMOJIS = ['😀','😂','🥹','😍','😎','🤔','😢','😡','👍','👎','🙏','🔥','❤️','💜','🎵','🎶','🥳','😴','😭','🤗','👏','✨','💯','😅'];
+                picker = document.createElement('div');
+                picker.id = 'chat-emoji-picker';
+                picker.innerHTML = EMOJIS.map(e => `<span class="emoji-pick">${e}</span>`).join('');
+                const inputBar = $('#chat-input-bar');
+                inputBar.parentNode.insertBefore(picker, inputBar);
+                requestAnimationFrame(() => picker.classList.add('visible'));
+                picker.querySelectorAll('.emoji-pick').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const input = $('#chat-message-input');
+                        input.value += el.textContent;
+                        input.focus();
+                        input.dispatchEvent(new Event('input'));
+                    });
+                });
+                // tap outside to close
+                setTimeout(() => {
+                    document.addEventListener('click', function closeOnOutside(e) {
+                        if (!e.target.closest('#chat-emoji-picker') && !e.target.closest('#chat-emoji-btn')) {
+                            picker.remove();
+                            document.removeEventListener('click', closeOnOutside);
+                        }
+                    });
+                }, 0);
             }
 
             function filterChatConversations(q) {
@@ -5032,6 +5246,31 @@ audioPlayer.addEventListener('ended', () => {
                     }
                     openSheet();
                 };
+            }
+
+            // ── HANDLE ?play= URL param — play immediately, no login required.
+            // Login/signup is only offered as an upsell AFTER playback starts, never a gate.
+            function handlePlaySongUrlParam() {
+                const params = new URLSearchParams(window.location.search);
+                const playParam = params.get('play');
+                if (!playParam) return;
+                const song = getSongById(decodeURIComponent(playParam));
+                if (!song) {
+                    // Unknown/old ID — fall back to the informational sheet instead of silently failing
+                    checkSharedUrlForGuest();
+                    return;
+                }
+                playSongs([song.id], 0);
+                if (currentUser && currentUser.isAnonymous) {
+                    setTimeout(() => {
+                        window._showGuestPreview?.({
+                            type: 'Song',
+                            title: song.title,
+                            sub: (song.artist || '') + ' · Login for playlists, chat & more',
+                            thumb: song.img128 || song.img || null
+                        });
+                    }, 1200);
+                }
             }
 
             // Check URL params for guest (before login)
