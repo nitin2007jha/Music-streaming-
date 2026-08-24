@@ -207,7 +207,7 @@
         .section-title { font-size: 24px; font-weight: 700; margin-bottom: 20px; padding-top: 20px; }
 
         /* --- 5. BOTTOM NAVIGATION --- */
-        #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: rgba(30, 30, 30, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
+        #bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: rgba(30, 30, 30, 0.8); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-around; align-items: center; z-index: 1000; box-shadow: 0 -4px 24px -4px rgba(106,17,203,.35), 0 -2px 40px -6px rgba(37,117,252,.28); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); cursor: pointer; transition: color 0.2s ease; }
         .nav-item.active { color: var(--accent-primary); }
         .nav-item .material-icons { font-size: 28px; } .nav-item span { font-size: 12px; margin-top: 4px; }
@@ -962,6 +962,45 @@
         .cip-swatch.active { border-color: var(--text-primary); }
         /* ─── END CONTACT INFO PANEL ─── */
 
+        /* ═══════════════ SETTINGS BOTTOM SHEETS ═══════════════ */
+        .settings-row-list { padding: 4px 0; }
+        .settings-row {
+            display: flex; align-items: center; gap: 14px; padding: 16px 4px; cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .settings-row:last-child { border-bottom: none; }
+        .settings-row .material-icons:first-child { color: var(--accent-primary); font-size: 22px; flex-shrink: 0; }
+        .settings-row-text { flex: 1; min-width: 0; }
+        .settings-row-title { font-size: 15.5px; font-weight: 700; }
+        .settings-row-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; }
+        .settings-row .chev { color: var(--text-secondary); font-size: 20px; flex-shrink: 0; }
+
+        .bottom-sheet-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 10003;
+            display: none; align-items: flex-end; justify-content: center;
+        }
+        .bottom-sheet-overlay.visible { display: flex; animation: fadeIn .2s ease; }
+        .bottom-sheet {
+            background: var(--bg-secondary); width: 100%; max-width: 560px;
+            border-radius: 26px 26px 0 0; padding: 0 20px calc(20px + env(safe-area-inset-bottom));
+            max-height: 86vh; overflow-y: auto; box-sizing: border-box;
+            transform: translateY(100%); transition: transform .34s cubic-bezier(0.32,0.72,0,1);
+        }
+        .bottom-sheet-overlay.visible .bottom-sheet { transform: translateY(0); }
+        .bottom-sheet-handle {
+            width: 42px; height: 5px; border-radius: 3px; background: var(--border-color);
+            margin: 12px auto 6px; cursor: pointer;
+        }
+        .bottom-sheet-title { font-size: 19px; font-weight: 800; margin: 6px 0 16px; text-align: center; }
+        .bottom-sheet-close-pill {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            margin: 18px auto 4px; padding: 11px 30px; border-radius: 999px;
+            background: var(--bg-primary); border: 1.5px solid var(--border-color); color: var(--text-primary);
+            font-size: 14px; font-weight: 700; cursor: pointer; width: fit-content;
+        }
+        .bottom-sheet-close-pill:active { opacity: .7; }
+        /* ─── END SETTINGS BOTTOM SHEETS ─── */
+
         /* ═══════════════ INLINE UP-NEXT STRIP (full player) ═══════════════ */
         #fp-upnext-strip { margin-top: 14px; }
         .fp-upnext-card { flex-shrink: 0; width: 64px; text-align: center; cursor: pointer; }
@@ -1634,12 +1673,95 @@
                     <button id="settings-back-btn" style="background:none;border:none;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;"><span class="material-icons">arrow_back</span></button>
                     <h2 style="font-size:22px;font-weight:700;">Settings</h2>
                 </div>
-                <div class="settings-card" id="settings-user-card"></div>
 
-                <!-- EDIT PROFILE CARD -->
-                <div class="settings-card">
-                    <h3>Edit Profile</h3>
-                    <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+                <div class="settings-card settings-row-list">
+                    <div class="settings-row" id="open-account-sheet-btn">
+                        <span class="material-icons">account_circle</span>
+                        <div class="settings-row-text">
+                            <div class="settings-row-title">Account</div>
+                            <div class="settings-row-sub" id="settings-account-preview">Profile, name, password</div>
+                        </div>
+                        <span class="material-icons chev">chevron_right</span>
+                    </div>
+                    <div class="settings-row" id="open-premium-sheet-btn">
+                        <span class="material-icons" style="color:#FFD700;">workspace_premium</span>
+                        <div class="settings-row-text">
+                            <div class="settings-row-title">Get Premium</div>
+                            <div class="settings-row-sub">Ad-free, unlimited downloads</div>
+                        </div>
+                        <span class="material-icons chev">chevron_right</span>
+                    </div>
+                    <div class="settings-row" id="open-rewards-sheet-btn">
+                        <span class="material-icons">redeem</span>
+                        <div class="settings-row-text">
+                            <div class="settings-row-title">Rewards</div>
+                            <div class="settings-row-sub">Daily coins &amp; bonus coins</div>
+                        </div>
+                        <span class="material-icons chev">chevron_right</span>
+                    </div>
+                </div>
+
+                <div class="settings-card settings-row-list">
+                    <div class="settings-row" id="about-btn">
+                        <span class="material-icons">info</span>
+                        <div class="settings-row-text"><div class="settings-row-title">About Musico</div></div>
+                        <span class="material-icons chev">chevron_right</span>
+                    </div>
+                    <div class="settings-row" id="force-update-btn">
+                        <span class="material-icons">refresh</span>
+                        <div class="settings-row-text">
+                            <div class="settings-row-title">Force Update</div>
+                            <div class="settings-row-sub">Stuck on an old version? Tap to fix</div>
+                        </div>
+                    </div>
+                    <div class="settings-row" style="cursor:default;">
+                        <span class="material-icons">dark_mode</span>
+                        <div class="settings-row-text"><div class="settings-row-title">Dark Mode</div></div>
+                        <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider round"></span></label>
+                    </div>
+                    <div class="settings-row" style="cursor:default;">
+                        <span class="material-icons">notifications</span>
+                        <div class="settings-row-text">
+                            <div class="settings-row-title">Push Notifications</div>
+                            <div class="settings-row-sub" id="push-notif-status"></div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="push-notif-toggle"><span class="slider round"></span></label>
+                    </div>
+                    <div class="settings-row" id="sleep-timer-btn">
+                        <span class="material-icons">bedtime</span>
+                        <div class="settings-row-text">
+                            <div class="settings-row-title">Sleep Timer</div>
+                            <div class="settings-row-sub" id="sleep-timer-display"></div>
+                        </div>
+                        <span class="material-icons chev">chevron_right</span>
+                    </div>
+                    <div class="settings-row" id="suggest-song-btn">
+                        <span class="material-icons">lightbulb</span>
+                        <div class="settings-row-text"><div class="settings-row-title">Suggest a Song</div></div>
+                        <span class="material-icons chev">chevron_right</span>
+                    </div>
+                    <div class="settings-row" style="cursor:default;">
+                        <span class="material-icons">high_quality</span>
+                        <div class="settings-row-text"><div class="settings-row-title">Download Quality</div></div>
+                        <select id="download-quality-select" style="background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-color);padding:6px 10px;border-radius:8px;font-size:13px;">
+                            <option value="128">128 kbps</option>
+                            <option value="320">320 kbps</option>
+                        </select>
+                    </div>
+                    <div class="settings-row" id="logout-btn" style="border-bottom:none;">
+                        <span class="material-icons" style="color:#dc3545;">logout</span>
+                        <div class="settings-row-text"><div class="settings-row-title" style="color:#dc3545;">Logout</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Account bottom sheet ═══ -->
+            <div class="bottom-sheet-overlay" id="account-sheet">
+                <div class="bottom-sheet">
+                    <div class="bottom-sheet-handle" data-close-sheet="account-sheet"></div>
+                    <div class="bottom-sheet-title">Account</div>
+                    <div class="settings-card" id="settings-user-card" style="margin-bottom:16px;"></div>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
                         <div>
                             <label style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;display:block;">Display Name</label>
                             <input type="text" id="edit-profile-name" placeholder="Your name" style="width:100%;padding:12px 14px;border:1.5px solid var(--border-color);border-radius:10px;background:var(--bg-primary);color:var(--text-primary);font-size:15px;box-sizing:border-box;">
@@ -1650,7 +1772,7 @@
                         </div>
                         <button id="save-profile-btn" style="padding:13px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;font-size:15px;font-weight:700;cursor:pointer;">Save Changes</button>
                     </div>
-                    <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px;">
+                    <div style="border-top:1px solid var(--border-color);margin-top:18px;padding-top:16px;">
                         <h4 style="margin:0 0 12px;font-size:15px;">Change Password</h4>
                         <div style="display:flex;flex-direction:column;gap:10px;">
                             <input type="password" id="edit-new-password" placeholder="New password (min 6 chars)" style="width:100%;padding:12px 14px;border:1.5px solid var(--border-color);border-radius:10px;background:var(--bg-primary);color:var(--text-primary);font-size:15px;box-sizing:border-box;">
@@ -1659,49 +1781,33 @@
                         </div>
                     </div>
                     <p id="profile-edit-msg" style="display:none;text-align:center;margin-top:10px;font-size:13px;font-weight:600;"></p>
+                    <div class="bottom-sheet-close-pill" data-close-sheet="account-sheet"><span class="material-icons" style="font-size:18px;">close</span>Close</div>
                 </div>
+            </div>
 
-                <div class="settings-card">
-                    <h3>Get Premium</h3>
+            <!-- ═══ Premium bottom sheet ═══ -->
+            <div class="bottom-sheet-overlay" id="premium-sheet">
+                <div class="bottom-sheet">
+                    <div class="bottom-sheet-handle" data-close-sheet="premium-sheet"></div>
+                    <div class="bottom-sheet-title">Get Premium</div>
                     <div class="premium-benefits"><ul>
                         <li><span class="material-icons">check_circle</span>Ad-free music</li>
                         <li><span class="material-icons">check_circle</span>Unlimited in-app downloads</li>
                         <li><span class="material-icons">check_circle</span>Save to device storage</li>
                     </ul></div>
                     <button class="premium-button" id="unlock-premium-btn">Unlock Premium Now</button>
+                    <div class="bottom-sheet-close-pill" data-close-sheet="premium-sheet"><span class="material-icons" style="font-size:18px;">close</span>Close</div>
                 </div>
-                <div class="settings-card">
-                    <h3>Rewards</h3>
+            </div>
+
+            <!-- ═══ Rewards bottom sheet ═══ -->
+            <div class="bottom-sheet-overlay" id="rewards-sheet">
+                <div class="bottom-sheet">
+                    <div class="bottom-sheet-handle" data-close-sheet="rewards-sheet"></div>
+                    <div class="bottom-sheet-title">Rewards</div>
                     <div class="settings-option"><p>Daily Coin Reward</p><button id="claim-coin-btn">Claim 30 Coins</button></div>
-                    <div class="settings-option"><p>Watch Ad for Coins</p><button id="watch-ad-btn">Get 5 Coins</button></div>
-                </div>
-                <div class="settings-card">
-                    <h3>More</h3>
-                    <div class="settings-option" id="about-btn"><p>About Musico</p><span class="material-icons">chevron_right</span></div>
-                    <div class="settings-option">
-                        <p>Dark Mode</p>
-                        <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider round"></span></label>
-                    </div>
-                    <div class="settings-option">
-                        <p>Push Notifications <span id="push-notif-status" style="font-size:12px;color:var(--text-secondary);display:block;margin-top:2px;"></span></p>
-                        <label class="switch"><input type="checkbox" id="push-notif-toggle"><span class="slider round"></span></label>
-                    </div>
-                    <div class="settings-option" id="sleep-timer-btn" style="cursor:pointer;">
-                        <p>Sleep Timer <span id="sleep-timer-display" style="font-size:13px;color:var(--accent-primary);margin-left:8px;"></span></p>
-                        <span class="material-icons">bedtime</span>
-                    </div>
-                    <div class="settings-option" id="suggest-song-btn" style="cursor:pointer;">
-                        <p>Suggest a Song</p>
-                        <span class="material-icons">lightbulb</span>
-                    </div>
-                    <div class="settings-option">
-                        <p>Download Quality</p>
-                        <select id="download-quality-select" style="background:var(--bg-primary);color:var(--text-primary);border:1px solid var(--border-color);padding:6px 10px;border-radius:8px;font-size:14px;">
-                            <option value="128">128 kbps (Saves Space)</option>
-                            <option value="320">320 kbps (Best Quality)</option>
-                        </select>
-                    </div>
-                    <div class="settings-option"><p>Logout</p><button id="logout-btn" style="color:#dc3545;background:transparent;padding:0;">Logout</button></div>
+                    <div class="settings-option" style="border-bottom:none;"><p>Watch Ad for Coins</p><button id="watch-ad-btn">Get 5 Coins</button></div>
+                    <div class="bottom-sheet-close-pill" data-close-sheet="rewards-sheet"><span class="material-icons" style="font-size:18px;">close</span>Close</div>
                 </div>
             </div>
         </div>
@@ -2401,6 +2507,35 @@
                 });
             }
 
+            // ── Force Update: nuke every SW registration + cache, then reload ──
+            // Escape hatch for when the browser is stuck serving an old
+            // cached version even after a fresh deploy.
+            // ── Generic bottom-sheet open/close (Settings: Account / Premium / Rewards) ──
+            function openBottomSheet(id) {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('visible');
+            }
+            function closeBottomSheet(id) {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('visible');
+            }
+
+            async function forceAppUpdate() {
+                if (!confirm('This will clear the app cache and reload. Continue?')) return;
+                showToast('Clearing cache...');
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(regs.map(r => r.unregister()));
+                    }
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map(k => caches.delete(k)));
+                    }
+                } catch(e) { console.warn('[ForceUpdate] cleanup error:', e); }
+                setTimeout(() => window.location.reload(), 300);
+            }
+
             async function handleUserLoggedIn() {
                 authScreen.style.opacity = 0;
                 setTimeout(() => authScreen.style.display = 'none', 500);
@@ -2807,6 +2942,8 @@
                     <p style="color: var(--text-secondary); font-size: 14px;">${userData.email || 'Guest Account'}</p>
                     ${expiryLine}
                 `;
+                const accountPreview = $('#settings-account-preview');
+                if (accountPreview) accountPreview.textContent = userData.email || 'Profile, name, password';
                 // Restore download quality
                 const savedQuality = localStorage.getItem('downloadQuality') || '128';
                 const qualitySelect = $('#download-quality-select');
@@ -4287,6 +4424,18 @@ audioPlayer.addEventListener('ended', () => {
                     }
                 });
                 $('#about-btn').addEventListener('click', () => showModal('#about-modal'));
+                $('#force-update-btn').addEventListener('click', forceAppUpdate);
+
+                // ✅ Settings bottom sheets (Account / Premium / Rewards)
+                $('#open-account-sheet-btn').addEventListener('click', () => openBottomSheet('account-sheet'));
+                $('#open-premium-sheet-btn').addEventListener('click', () => openBottomSheet('premium-sheet'));
+                $('#open-rewards-sheet-btn').addEventListener('click', () => openBottomSheet('rewards-sheet'));
+                $$('[data-close-sheet]').forEach(el => {
+                    el.addEventListener('click', () => closeBottomSheet(el.dataset.closeSheet));
+                });
+                $$('.bottom-sheet-overlay').forEach(overlay => {
+                    overlay.addEventListener('click', e => { if (e.target === overlay) closeBottomSheet(overlay.id); });
+                });
                 $('#unlock-premium-btn').addEventListener('click', () => showModal('#premium-token-modal'));
                 $('#coin-balance-btn').addEventListener('click', showCoinHistoryModal);
                 claimCoinBtn.addEventListener('click', claimDailyReward);
@@ -7191,7 +7340,7 @@ audioPlayer.addEventListener('ended', () => {
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
                     .then(reg => {
                         console.log('SW registered:', reg.scope);
 
