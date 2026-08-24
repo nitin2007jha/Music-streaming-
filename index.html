@@ -2186,7 +2186,7 @@
 
     // ⚠️ Get this from: Firebase Console → Project Settings → Cloud Messaging →
     // "Web Push certificates" → Generate key pair. Paste the key here.
-    const VAPID_KEY = "BD0cQyYymaOCCnpGpUjkMzTjhal7pi_dlaVC6XdTiQUQuUnaSxsfmMlVSclKG1Qt6X7LNPOxf1WNBVrgvRnHlRI";
+    const VAPID_KEY = "PASTE_YOUR_VAPID_PUBLIC_KEY_HERE";
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
@@ -7192,8 +7192,39 @@ audioPlayer.addEventListener('ended', () => {
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registered:', reg.scope))
+                    .then(reg => {
+                        console.log('SW registered:', reg.scope);
+
+                        // ── Auto-detect a new deploy and refresh once it's ready ──
+                        // A fresh SW.js was fetched (new deploy exists). Once it
+                        // finishes installing, tell it to activate immediately and
+                        // reload this tab so the new index.html actually shows.
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            if (!newWorker) return;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                }
+                            });
+                        });
+
+                        // Check for a newer sw.js every time the tab regains focus —
+                        // catches the case where the app was left open in the
+                        // background across a deploy.
+                        document.addEventListener('visibilitychange', () => {
+                            if (document.visibilityState === 'visible') reg.update();
+                        });
+                    })
                     .catch(err => console.log('SW failed:', err));
+
+                // When the new SW takes control, reload so index.html refreshes.
+                let _swRefreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (_swRefreshing) return;
+                    _swRefreshing = true;
+                    window.location.reload();
+                });
             });
         }
 
