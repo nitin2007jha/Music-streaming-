@@ -1682,6 +1682,10 @@
                         <p>Dark Mode</p>
                         <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider round"></span></label>
                     </div>
+                    <div class="settings-option">
+                        <p>Push Notifications <span id="push-notif-status" style="font-size:12px;color:var(--text-secondary);display:block;margin-top:2px;"></span></p>
+                        <label class="switch"><input type="checkbox" id="push-notif-toggle"><span class="slider round"></span></label>
+                    </div>
                     <div class="settings-option" id="sleep-timer-btn" style="cursor:pointer;">
                         <p>Sleep Timer <span id="sleep-timer-display" style="font-size:13px;color:var(--accent-primary);margin-left:8px;"></span></p>
                         <span class="material-icons">bedtime</span>
@@ -2162,6 +2166,12 @@
         limit,
         onSnapshot
     } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+    import {
+        getMessaging,
+        getToken as getFcmToken,
+        onMessage,
+        isSupported as isMessagingSupported
+    } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-messaging.js";
 
     // !!! IMPORTANT - FIREBASE CONFIG !!!
     // Secure this in production.
@@ -2173,6 +2183,10 @@
             messagingSenderId: "1057045092960",
             appId: "1:1057045092960:web:ba0de9d6e20382285ec105"
         };
+
+    // ⚠️ Get this from: Firebase Console → Project Settings → Cloud Messaging →
+    // "Web Push certificates" → Generate key pair. Paste the key here.
+    const VAPID_KEY = "PASTE_YOUR_VAPID_PUBLIC_KEY_HERE";
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
@@ -2412,6 +2426,7 @@
                 initCollabPage();
                 renderHomeCollabPlaylists();
                 initGlobalChatNotifications();
+                await initFcm();
                 routeFromHash(); // open the page from an installed shortcut / deep link, if any
             }
 
@@ -2464,6 +2479,78 @@
             }, { once: true });
 
             // ── END NOTIFICATIONS ──
+
+            // ═══════════════════════════════════════════════════════════════
+            // REAL PUSH NOTIFICATIONS (Firebase Cloud Messaging)
+            // Unlike showLocalNotification() above, this works even when the
+            // app is CLOSED or in the background — a server-side Cloud
+            // Function sends the push, and the service worker below wakes up
+            // to display it.
+            // ═══════════════════════════════════════════════════════════════
+            let messaging = null;
+
+            async function initFcm() {
+                try {
+                    const supported = await isMessagingSupported();
+                    if (!supported) { console.log('[FCM] Push not supported on this browser/OS.'); return; }
+                    messaging = getMessaging(app);
+
+                    // App is OPEN & focused → FCM delivers here instead of as an
+                    // OS notification, so we show our own local one.
+                    onMessage(messaging, payload => {
+                        const n = payload.notification || {};
+                        showLocalNotification(n.title || 'Musico', n.body || '', n.icon, payload.data?.songId);
+                    });
+
+                    // If the user already granted permission in a past session,
+                    // silently (re)register so they don't have to flip the toggle again.
+                    if (Notification.permission === 'granted' && !localStorage.getItem('fcmToken')) {
+                        await enablePushNotifications();
+                    }
+                } catch(e) { console.warn('[FCM] init failed:', e); }
+                updatePushToggleUI();
+            }
+
+            async function enablePushNotifications() {
+                if (!messaging) { showToast('Push not supported on this device/browser'); return false; }
+                const granted = await requestNotificationPermission();
+                if (!granted) { showToast('Notification permission denied'); updatePushToggleUI(); return false; }
+                try {
+                    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+                    const token = await getFcmToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+                    if (!token) { showToast('Could not get a push token'); return false; }
+                    localStorage.setItem('fcmToken', token);
+                    if (currentUser && !currentUser.isAnonymous) {
+                        await updateDoc(doc(db, 'users', currentUser.uid), { fcmTokens: arrayUnion(token) });
+                    }
+                    updatePushToggleUI();
+                    return true;
+                } catch(e) { showToast('Push setup failed: ' + e.message); return false; }
+            }
+
+            async function disablePushNotifications() {
+                const token = localStorage.getItem('fcmToken');
+                if (token && currentUser && !currentUser.isAnonymous) {
+                    try { await updateDoc(doc(db, 'users', currentUser.uid), { fcmTokens: arrayRemove(token) }); } catch(e) {}
+                }
+                localStorage.removeItem('fcmToken');
+                updatePushToggleUI();
+            }
+
+            function updatePushToggleUI() {
+                const toggle = $('#push-notif-toggle');
+                const status = $('#push-notif-status');
+                if (!toggle) return;
+                const perm = ('Notification' in window) ? Notification.permission : 'unsupported';
+                const hasToken = !!localStorage.getItem('fcmToken');
+                toggle.checked = perm === 'granted' && hasToken;
+                if (status) {
+                    status.textContent = perm === 'denied' ? 'Blocked — enable in browser/app settings'
+                        : (perm === 'granted' && hasToken) ? 'On'
+                        : 'Off — you won\'t be notified when the app is closed';
+                }
+            }
+            // ── END PUSH NOTIFICATIONS ──
             function applyProxyToUrl(url) {
                 if (!url) return url;
                 const enabled = localStorage.getItem('corsProxyEnabled') === 'true';
@@ -4189,6 +4276,16 @@ audioPlayer.addEventListener('ended', () => {
                 // --- SETTINGS & MODALS ---
                 $('#logout-btn').addEventListener('click', () => { window._manualLogout = true; signOut(auth).catch(err => { window._manualLogout = false; showToast("Logout failed"); }); });
                 $('#theme-toggle').addEventListener('change', setupTheme);
+                $('#push-notif-toggle').addEventListener('change', async e => {
+                    if (e.target.checked) {
+                        const ok = await enablePushNotifications();
+                        if (ok) showToast('🔔 Push notifications enabled');
+                        else e.target.checked = false;
+                    } else {
+                        await disablePushNotifications();
+                        showToast('🔕 Push notifications disabled');
+                    }
+                });
                 $('#about-btn').addEventListener('click', () => showModal('#about-modal'));
                 $('#unlock-premium-btn').addEventListener('click', () => showModal('#premium-token-modal'));
                 $('#coin-balance-btn').addEventListener('click', showCoinHistoryModal);
